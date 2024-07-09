@@ -1,4 +1,3 @@
-import searchIcon from '@/assets/Search.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import HeaderButton from './HeaderButton';
@@ -23,7 +22,13 @@ function Header() {
         </div>
         <div className="flex gap-x-3">
           <form className="flex flex-row relative">
-            <Image src={searchIcon} alt="searchIcon" className="absolute top-1.5 left-2" />
+            <Image
+              src={'/assets/img/Search.png'}
+              width={25}
+              height={25}
+              alt="searchIcon"
+              className="absolute top-1.5 left-2"
+            />
             <input
               type="text"
               placeholder="지역 or 책 이름을 검색해보세요"

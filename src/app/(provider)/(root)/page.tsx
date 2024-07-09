@@ -3,7 +3,7 @@ import PostList from '@/components/common/PostList';
 
 function HomePage() {
   const post = {
-    imgURL: '/example.png',
+    imgURL: '/assets/img/example_img.jpg',
     title: '책 팔아요',
     price: 19200,
     location: '경기 용인시 시흥구'
