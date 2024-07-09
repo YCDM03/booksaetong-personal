@@ -12,6 +12,9 @@ const config: Config = {
         main: '#003069',
         sub: '#2E4FFB'
       },
+      boxShadow: {
+        detail: '0px 0px 16px rgba(17, 17, 26, 0.1)'
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
