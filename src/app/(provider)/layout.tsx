@@ -1,4 +1,5 @@
 'use client';
+import Header from '@/components/common/Header';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PropsWithChildren } from 'react';
 
@@ -7,7 +8,7 @@ function ProvidersLayout({ children }: PropsWithChildren) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* <Header /> */}
+      <Header />
       {children}
     </QueryClientProvider>
   );
