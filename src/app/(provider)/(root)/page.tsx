@@ -1,7 +1,14 @@
-import React from 'react';
+import PostCard from '@/components/common/PostCard';
+import PostList from '@/components/common/PostList';
 
 function HomePage() {
-  return <div>page</div>;
+  return (
+    <div>
+      <PostList title="전체도서목록 ">
+        <PostCard />
+      </PostList>
+    </div>
+  );
 }
 
 export default HomePage;
