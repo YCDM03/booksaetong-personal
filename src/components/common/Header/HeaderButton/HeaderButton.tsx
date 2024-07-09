@@ -5,13 +5,13 @@ interface buttonProps {
   intent: 'default' | 'login' | 'logout' | 'signUp';
 }
 
-const buttonVariant = cva('px-3 py-1', {
+const buttonVariant = cva('rounded-md px-4 py-2.5 text-sm hover:brightness-90 active:brightness-75', {
   variants: {
     intent: {
-      default: '',
-      login: '',
-      logout: '',
-      signUp: ''
+      default: 'bg-main text-white',
+      login: 'bg-sub text-white',
+      logout: 'bg-white text-sub border border-sub',
+      signUp: 'bg-main text-white'
     }
   }
 });
