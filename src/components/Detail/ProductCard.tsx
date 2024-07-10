@@ -27,6 +27,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, userData }) => {
   const [liked, setLiked] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
     const fetchLikedStatus = async () => {
@@ -48,6 +49,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
 
     fetchLikedStatus();
   }, [userData, products]);
+
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      if (products.length > 0) {
+        const { data, error } = await supabase.from('users').select('email').eq('id', products[0].user_id).single();
+
+        if (error) {
+          console.error('Error fetching user email:', error);
+        } else if (data) {
+          setUserEmail(data.email);
+        }
+      }
+    };
+
+    fetchUserEmail();
+  }, [products]);
 
   const toggleLike = async (productId: string) => {
     if (liked) {
@@ -87,20 +104,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
             </div>
             <div className="rounded-md w-[500px] h-[400px] flex flex-col justify-between p-4">
               <div>
-                <div>
-                  <p className="font-bold text-3xl">{products[0].title}</p>
+                <div className="flex">
+                  <p className="font-bold text-3xl mr-5">{products[0].title}</p>
                   <div className="flex items-center">
                     <HeartIcon
-                      className={`h-6 w-6 text-red-500 cursor-pointer ${
+                      className={`h-7 w-7 cursor-pointer ${
                         liked ? 'text-red-600 fill-current' : 'text-gray-400 stroke-current'
                       }`}
                       onClick={() => toggleLike(products[0].id)}
                     />
                   </div>
                 </div>
-                <p className="text-[#6A7280]">{products[0].address}</p>
-                <p className="my-4 text-lg">{products[0].price}원</p>
-                <p>{products[0].contents}</p>
+                <p className="text-[#6A7280] mt-4">{products[0].address}</p>
+                <p className="my-4 text-lg font-medium">{products[0].price}원</p>
+                {/* <p>{products[0].contents}</p> */}
               </div>
               <div className="flex items-center space-x-2">
                 {userData.length > 0 && (
@@ -110,12 +127,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
                       'https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/profiles/550e8400-e29b-41d4-a716-446655440000/default_profile.png'
                     }
                     alt="유저 프로필 이미지"
-                    className="object-cover w-10 h-10 rounded-full mr-4"
+                    className="object-cover w-12 h-12 rounded-full mr-2"
                   />
                 )}
                 <div>
-                  <p>{products[0].user_id}</p>
-                  <p className="text-[#6A7280]">{products[0].address}</p>
+                  <p className="mb-1 text-sm">{userEmail}</p>
+                  <p className="text-[#6A7280] text-sm">{products[0].address}</p>
                 </div>
                 {userData.length > 0 && products.length > 0 && (
                   <Link href={`/editpage/${products[0].id}`}>
