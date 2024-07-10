@@ -118,6 +118,7 @@ export type Database = {
       };
       products: {
         Row: {
+          address: string | null;
           category: string | null;
           contents: string | null;
           created_at: string;
@@ -129,6 +130,7 @@ export type Database = {
           user_id: string | null;
         };
         Insert: {
+          address?: string | null;
           category?: string | null;
           contents?: string | null;
           created_at?: string;
@@ -140,6 +142,7 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          address?: string | null;
           category?: string | null;
           contents?: string | null;
           created_at?: string;

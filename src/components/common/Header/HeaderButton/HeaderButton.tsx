@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
-import { PropsWithChildren } from 'react';
+import { ComponentProps, PropsWithChildren } from 'react';
 
-interface buttonProps {
+interface buttonProps extends ComponentProps<'button'> {
   intent: 'default' | 'login' | 'logout' | 'signUp';
 }
 
@@ -16,8 +16,12 @@ const buttonVariant = cva('rounded-md px-4 py-2.5 text-sm hover:brightness-90 ac
   }
 });
 
-function HeaderButton({ intent, children }: PropsWithChildren<buttonProps>) {
-  return <button className={buttonVariant({ intent })}>{children}</button>;
+function HeaderButton({ intent, children, ...props }: PropsWithChildren<buttonProps>) {
+  return (
+    <button className={buttonVariant({ intent })} {...props}>
+      {children}
+    </button>
+  );
 }
 
 export default HeaderButton;
