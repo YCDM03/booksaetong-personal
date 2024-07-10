@@ -7,7 +7,7 @@ import { Posts } from '@/types/Post.type';
 import useUserStore from '@/zustand/userStore';
 import { useEffect, useState } from 'react';
 import 'swiper/css';
-import { Pagination } from 'swiper/modules';
+import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 function HomePage() {
@@ -22,21 +22,28 @@ function HomePage() {
       if (error) return console.log(error);
       console.log(posts);
       setAllPosts(posts as Posts[]);
-      const located = posts.filter((post) => {
-        return post.address[0] === user?.address[0];
-      });
-      console.log(located);
-      setLocatedPosts(located);
     })();
   }, []);
+
+  useEffect(() => {
+    const located = allPosts?.filter((post) => {
+      const postAddress = post.address.split(' ')[0] + post.address.split(' ')[1];
+      const userAddress = user?.address.split(' ')[0] + user?.address.split(' ')[1];
+
+      console.log(postAddress, userAddress);
+      return postAddress === userAddress;
+    });
+    console.log(located);
+    setLocatedPosts(located);
+  }, [allPosts]);
 
   return (
     <div className="flex flex-col items-center max-w-[1024px] mx-auto my-10">
       <PostList title="전체도서목록">
-        <Swiper className="flex flex-row w-full" modules={[Pagination]} slidesPerView={4} pagination={true}>
+        <Swiper modules={[Navigation]} slidesPerView={4} navigation={true}>
           {allPosts?.map((post) => {
             return (
-              <SwiperSlide key={post.id} className="flex flex-row">
+              <SwiperSlide key={post.id}>
                 <PostCard post={post} />
               </SwiperSlide>
             );
@@ -45,10 +52,10 @@ function HomePage() {
       </PostList>
       <PostList title="내 근처 도서">
         {isLoggedIn ? (
-          <Swiper className="flex flex-row w-full" modules={[Pagination]} slidesPerView={4} pagination={true}>
+          <Swiper className="flex flex-row w-full" modules={[Navigation]} slidesPerView={4} navigation={true}>
             {locatedPosts?.map((post) => {
               return (
-                <SwiperSlide key={post.id} className="flex flex-row">
+                <SwiperSlide key={post.id}>
                   <PostCard post={post} />
                 </SwiperSlide>
               );

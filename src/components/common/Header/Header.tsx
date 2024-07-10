@@ -5,7 +5,7 @@ import useUserStore, { User } from '@/zustand/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ChangeEvent, MouseEventHandler, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, MouseEventHandler, useEffect, useState } from 'react';
 import HeaderButton from './HeaderButton';
 
 function Header() {
@@ -15,7 +15,7 @@ function Header() {
 
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const { setKeyword } = useSearchStore<searchStoreType>((state) => state);
-  const onSubmit = (e) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setKeyword(searchKeyword);

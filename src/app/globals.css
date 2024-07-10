@@ -13,3 +13,8 @@
 .swiper-pagination-bullet-active {
   background-color: #ced7e3 !important;
 }
+
+.swiper-slide-active {
+  display: flex;
+  justify-content: center;
+}
