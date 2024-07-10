@@ -8,6 +8,10 @@ import Image from 'next/image';
 const WriterPage: NextPage = () => {
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('');
+  const [price, setPrice] = useState('');
+  const [content, setContent] = useState('');
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -30,12 +34,34 @@ const WriterPage: NextPage = () => {
   };
 
   const handleSubmit = () => {
-    console.log('작성 완료');
+    if (title && category && price && content) {
+      if (confirm('작성을 완료하시겠습니까?')) {
+        // 여기서 슈퍼베이스에 데이터 저장 로직 구현
+        console.log('데이터를 저장합니다.');
+        console.log(handleSubmit);
+        // 저장 후 필드 초기화
+        setTitle('');
+        setCategory('');
+        setPrice('');
+        setContent('');
+        setImages([]);
+        setCurrentIndex(0);
+        // 파일 업로드 필드 초기화
+        const fileInput = document.getElementById('image') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      } else {
+        console.log('작성이 취소되었습니다.');
+      }
+    } else {
+      alert('제목, 카테고리, 금액, 내용을 모두 입력해주세요.');
+    }
   };
 
   return (
-    <div className="flex flex-col h-screen relative">
-      <div className="flex-grow relative border-2 border-gray-300 mx-80 my-24 rounded-lg">
+    <div className="flex flex-col h-[80vh] relative">
+      <div className="flex-grow relative border-2 border-gray-300 mx-80 mt-10 mb-2 rounded-lg flex flex-col">
         <div className="absolute top-4 left-4 z-10">
           <p className="text-xl font-bold text-gray-800">판매등록하기</p>
         </div>
@@ -44,25 +70,49 @@ const WriterPage: NextPage = () => {
             <label htmlFor="title" className="text-sm text-gray-700">
               제목
             </label>
-            <input type="text" id="title" className="border border-gray-300 px-2 py-1" />
+            <input
+              type="text"
+              id="title"
+              className="border border-gray-300 px-2 py-1"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
           <div className="flex flex-col space-y-1">
             <label htmlFor="category" className="text-sm text-gray-700">
               카테고리
             </label>
-            <input type="text" id="category" className="border border-gray-300 px-2 py-1" />
+            <input
+              type="text"
+              id="category"
+              className="border border-gray-300 px-2 py-1"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            />
           </div>
           <div className="flex flex-col space-y-1">
             <label htmlFor="price" className="text-sm text-gray-700">
               금액
             </label>
-            <input type="text" id="price" className="border border-gray-300 px-2 py-1" />
+            <input
+              type="text"
+              id="price"
+              className="border border-gray-300 px-2 py-1"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
           </div>
           <div className="flex flex-col space-y-1">
             <label htmlFor="content" className="text-sm text-gray-700">
               내용
             </label>
-            <textarea id="content" rows={4} className="border border-gray-300 px-2 py-1" />
+            <textarea
+              id="content"
+              rows={4}
+              className="border border-gray-300 px-2 py-1"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
           </div>
         </div>
         <div className="absolute top-20 right-16 z-10 w-538">
@@ -79,7 +129,7 @@ const WriterPage: NextPage = () => {
               onChange={handleImageUpload}
             />
             <div className="mt-2 relative" style={{ width: '538px' }}>
-              {images.length > 4 && (
+              {images.length > 4 && currentIndex > 0 && (
                 <button
                   onClick={handlePrevious}
                   className="absolute left-0 top-1/2 transform -translate-y-1/2 p-1 bg-transparent focus:outline-none"
@@ -117,7 +167,7 @@ const WriterPage: NextPage = () => {
             </div>
           </div>
         </div>
-        {/* 작성 완료 버튼 */}
+
         <div className="absolute bottom-4 right-4 z-10">
           <button
             onClick={handleSubmit}
