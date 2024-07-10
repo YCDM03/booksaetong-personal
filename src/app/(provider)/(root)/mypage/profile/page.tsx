@@ -4,51 +4,61 @@ import Page from '@/components/MyPage/Page';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/contexts/supabase.context';
 import Image from 'next/image';
+import { useUserStore } from '@/zustand/userStore';
 
 function ProfilePage() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | ArrayBuffer | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [nickname, setNickname] = useState('');
-  const [address, setAddress] = useState('');
   const [notification, setNotification] = useState('');
+  const { id, nickname, address, profile_url, setUser } = useUserStore();
+  console.log(useUserStore());
+  const [localNickname, setLocalNickname] = useState(nickname || '');
+  const [localAddress, setLocalAddress] = useState(address || '');
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      if (userData?.id) {
-        setUserId(userData.id);
-        setNickname(userData.nickname);
-        setAddress(userData.address);
-        setSelectedImage(userData.profile_url);
-      } else {
-        const {
-          data: { session },
-          error
-        } = await supabase.auth.getSession();
-        if (session) {
+      if (!id) {
+        try {
+          const {
+            data: { session },
+            error
+          } = await supabase.auth.getSession();
+          if (error) {
+            console.error('Error fetching session:', error);
+            return;
+          }
+          if (!session) {
+            console.error('No session found:', error);
+            return;
+          }
           const user = session.user;
-          setUserId(user.id);
-          const { data, error } = await supabase
+          const { data, error: userError } = await supabase
             .from('users')
-            .select('nickname, address, profile_url')
+            .select('id, email, nickname, address, profile_url')
             .eq('id', user.id)
             .single();
-          if (data) {
-            setNickname(data.nickname);
-            setAddress(data.address);
-            setSelectedImage(data.profile_url);
-          } else {
-            console.error('유저 데이터를 가져오는 중 오류:', error);
+          if (userError) {
+            console.error('Error fetching user data:', userError);
+            return;
           }
-        } else {
-          console.error('No session found:', error);
+          if (data) {
+            setUser(data.id, data.email, data.nickname, data.profile_url, data.address);
+            setLocalNickname(data.nickname);
+            setLocalAddress(data.address);
+            setSelectedImage(data.profile_url);
+          }
+        } catch (fetchError) {
+          console.error('Unexpected error fetching user data:', fetchError);
         }
+      } else {
+        setLocalNickname(nickname || '');
+        setLocalAddress(address || '');
+        setSelectedImage(profile_url);
       }
     };
     fetchUserData();
-  }, []);
+  }, [id, nickname, address, profile_url, setUser]);
 
   const openModal = () => {
     setModalOpen(true);
@@ -71,10 +81,10 @@ function ProfilePage() {
   };
 
   const handleImageUpload = async () => {
-    if (!selectedImage || !userId || !selectedFile) return;
+    if (!selectedImage || !id || !selectedFile) return;
 
     const cleanFileName = selectedFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
-    const filePath = `profiles/${userId}/${Date.now()}_${cleanFileName}`;
+    const filePath = `profiles/${id}/${Date.now()}_${cleanFileName}`;
 
     const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, selectedFile);
     if (uploadError) {
@@ -92,29 +102,30 @@ function ProfilePage() {
 
     const publicURL = data.publicUrl;
 
-    const { error: updateError } = await supabase.from('users').update({ profile_url: publicURL }).eq('id', userId);
+    const { error: updateError } = await supabase.from('users').update({ profile_url: publicURL }).eq('id', id);
     if (updateError) {
       console.error('프로필 URL을 업데이트하는 중 오류:', updateError);
       return;
     }
 
-    // 업데이트된 사용자 프로필 이미지를 로컬 스토리지에 저장
-    const updatedUserData = { ...JSON.parse(localStorage.getItem('user') || '{}'), profile_url: publicURL };
-    localStorage.setItem('user', JSON.stringify(updatedUserData));
+    // Zustand 스토어 업데이트
+    setUser(id, useUserStore.getState().email!, localNickname, publicURL, localAddress);
 
     setNotification('프로필 이미지가 변경되었습니다.');
     setModalOpen(false);
   };
 
   const handleSave = async () => {
-    if (userId) {
-      const { error } = await supabase.from('users').update({ nickname, address }).eq('id', userId);
+    if (id) {
+      const { error } = await supabase
+        .from('users')
+        .update({ nickname: localNickname, address: localAddress })
+        .eq('id', id);
       if (error) {
         console.error('사용자 데이터를 업데이트하는 중 오류:', error);
       } else {
-        // 업데이트된 사용자 정보를 로컬 스토리지에 저장
-        const updatedUserData = { ...JSON.parse(localStorage.getItem('user') || '{}'), nickname, address };
-        localStorage.setItem('user', JSON.stringify(updatedUserData));
+        // Zustand 스토어 업데이트
+        setUser(id, useUserStore.getState().email!, localNickname, profile_url!, localAddress);
         setNotification('프로필 정보가 변경되었습니다.');
       }
     }
@@ -172,8 +183,8 @@ function ProfilePage() {
               <input
                 type="text"
                 id="nickname"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                value={localNickname}
+                onChange={(e) => setLocalNickname(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-main rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-500"
               />
             </div>
@@ -184,8 +195,8 @@ function ProfilePage() {
               <input
                 type="text"
                 id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                value={localAddress}
+                onChange={(e) => setLocalAddress(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-main rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-500"
               />
             </div>
