@@ -211,37 +211,6 @@ export type Database = {
           image_url: string
         }[]
       }
-      get_filtered_products:
-        | {
-            Args: {
-              category_list: string[]
-              keyword: string
-              request_limit: number
-              request_offset: number
-            }
-            Returns: {
-              title: string
-              address: string
-              price: number
-              like_count: number
-              image_url: string
-            }[]
-          }
-        | {
-            Args: {
-              category_list: string[]
-              keyword: string
-              request_limit: number
-              request_offset: number
-            }
-            Returns: {
-              title: string
-              address: string
-              price: number
-              like_count: number
-              image_url: string
-            }[]
-          }
     }
     Enums: {
       [_ in never]: never;
