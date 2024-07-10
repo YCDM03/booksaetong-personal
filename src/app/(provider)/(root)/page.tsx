@@ -20,7 +20,6 @@ function HomePage() {
     (async () => {
       const { data: posts, error } = await supabase.from('products').select(`*, product_images(image_url)`);
       if (error) return console.log(error);
-      console.log(posts);
       setAllPosts(posts as Posts[]);
     })();
   }, []);
@@ -28,13 +27,9 @@ function HomePage() {
   useEffect(() => {
     const located = allPosts?.filter((post) => {
       const postAddress = post.address.split(' ')[0] + post.address.split(' ')[1];
-      if (!user) return false;
       const userAddress = user?.address.split(' ')[0] + user?.address.split(' ')[1];
-
-      console.log(postAddress, userAddress);
       return postAddress === userAddress;
     });
-    console.log(located);
     setLocatedPosts(located);
   }, [allPosts]);
 
@@ -54,7 +49,7 @@ function HomePage() {
 
       <PostList title="내 근처 도서">
         {isLoggedIn ? (
-          <Swiper modules={[Navigation]} slidesPerView={4} navigation>
+          <Swiper className="custom-swiper-container" modules={[Navigation]} slidesPerView={4} navigation>
             {locatedPosts?.map((post) => {
               return (
                 <SwiperSlide key={post.id}>
