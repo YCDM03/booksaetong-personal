@@ -14,8 +14,10 @@ function HomePage() {
   const [allPosts, setAllPosts] = useState<Posts[]>();
   const [locatedPosts, setLocatedPosts] = useState<Posts[]>();
 
-  const { address } = useUserStore();
-  console.log(address);
+  const { address } = useUserStore((state) => ({
+    address: state.address
+  }));
+
   useEffect(() => {
     (async () => {
       const { data: posts, error } = await supabase.from('products').select(`*, product_images(image_url)`);
@@ -26,9 +28,10 @@ function HomePage() {
 
   useEffect(() => {
     const located = allPosts?.filter((post) => {
-      const postAddress = post.address.split(' ')[0] + post.address.split(' ')[1];
+      const postAddress = `${post.address.split(' ')[0]} ${post.address.split(' ')[1]}`;
+      if (!address) return false;
+      const userAddress = `${address?.split(' ')[0]} ${address?.split(' ')[1]}`;
       console.log(address);
-      const userAddress = address;
       return postAddress === userAddress;
     });
     setLocatedPosts(located);
@@ -52,6 +55,7 @@ function HomePage() {
         {address ? (
           <Swiper className="custom-swiper-container" modules={[Navigation]} slidesPerView={4} navigation>
             {locatedPosts?.map((post) => {
+              console.log(post);
               return (
                 <SwiperSlide key={post.id}>
                   <PostCard post={post} />

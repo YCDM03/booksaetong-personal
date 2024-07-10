@@ -31,7 +31,7 @@ function LoginPage() {
     } else if (response.status === 200) {
       alert('로그인 성공!');
       const { id, nickname, address, email, profile_url }: { [key: string]: string } = users[0];
-      setUser(id, nickname, address, email, profile_url);
+      setUser(id, email, nickname, profile_url, address);
       router.push('/');
     }
   };
