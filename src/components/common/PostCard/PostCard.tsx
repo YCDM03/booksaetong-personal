@@ -12,7 +12,7 @@ function PostCard({ post }: PostCardProps) {
 
   return (
     <Link href={`/detail/${post.id}`}>
-      <div className="flex flex-col w-[220px] h-[350px] gap-y-3 text-sm px-3 cursor-pointer">
+      <div className="flex flex-col w-[220px] h-[350px] gap-y-3 text-sm cursor-pointer mx-5 px-3">
         <div className="relative aspect-square my-3">
           <Image src={img_url} alt="판매글 대표이미지" fill className="object-cover rounded-lg border" />
         </div>

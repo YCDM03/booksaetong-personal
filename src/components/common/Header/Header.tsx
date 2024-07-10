@@ -1,7 +1,8 @@
 'use client';
 
+import { LoginUser } from '@/types/auth/auth.type';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
-import useUserStore, { User } from '@/zustand/userStore';
+import useUserStore from '@/zustand/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -37,7 +38,7 @@ function Header() {
   };
 
   useEffect(() => {
-    const loginedUser: User = JSON.parse(localStorage.getItem('user') as string) ?? null;
+    const loginedUser: LoginUser = JSON.parse(localStorage.getItem('user') as string) ?? null;
     loginedUser ? login(loginedUser) : null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

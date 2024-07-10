@@ -28,6 +28,7 @@ function HomePage() {
   useEffect(() => {
     const located = allPosts?.filter((post) => {
       const postAddress = post.address.split(' ')[0] + post.address.split(' ')[1];
+      if (!user) return false;
       const userAddress = user?.address.split(' ')[0] + user?.address.split(' ')[1];
 
       console.log(postAddress, userAddress);
@@ -40,7 +41,7 @@ function HomePage() {
   return (
     <div className="flex flex-col items-center max-w-[1024px] mx-auto my-10">
       <PostList title="전체도서목록">
-        <Swiper modules={[Navigation]} slidesPerView={4} navigation={true}>
+        <Swiper className="custom-swiper-container" modules={[Navigation]} slidesPerView={4} navigation>
           {allPosts?.map((post) => {
             return (
               <SwiperSlide key={post.id}>
@@ -50,9 +51,10 @@ function HomePage() {
           })}
         </Swiper>
       </PostList>
+
       <PostList title="내 근처 도서">
         {isLoggedIn ? (
-          <Swiper className="flex flex-row w-full" modules={[Navigation]} slidesPerView={4} navigation={true}>
+          <Swiper modules={[Navigation]} slidesPerView={4} navigation>
             {locatedPosts?.map((post) => {
               return (
                 <SwiperSlide key={post.id}>

@@ -21,7 +21,7 @@ function PostList({ title, children }: PropsWithChildren<ListProps>) {
           View More{` >`}
         </button>
       </div>
-      <div className="flex flex-row h-[350px]">{children}</div>
+      <div className="flex flex-row w-full h-[350px]">{children}</div>
     </div>
   );
 }
