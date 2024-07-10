@@ -1,13 +1,13 @@
 'use client';
 
-import useUserStore from '@/zustand/userStore';
+import { useUserStore } from '@/zustand/userStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEventHandler } from 'react';
 
 function LoginPage() {
   const router = useRouter();
-  const login = useUserStore((state) => state.login);
+  const setUser = useUserStore((state) => state.setUser);
 
   const handleSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
@@ -31,9 +31,7 @@ function LoginPage() {
     } else if (response.status === 200) {
       alert('로그인 성공!');
       const { id, nickname, address, email, profile_url }: { [key: string]: string } = users[0];
-
-      localStorage.setItem('user', JSON.stringify({ id, nickname, address, email, profile_url }));
-      login({ id, nickname, address, email, profile_url });
+      setUser(id, nickname, address, email, profile_url);
       router.push('/');
     }
   };

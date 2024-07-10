@@ -1,18 +1,19 @@
 'use client';
 
-import { LoginUser } from '@/types/auth/auth.type';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
-import useUserStore from '@/zustand/userStore';
+import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ChangeEvent, FormEvent, MouseEventHandler, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
 
 function Header() {
   const router = useRouter();
   const currentPathName = usePathname();
-  const { user, login, logout } = useUserStore();
+  const { nickname } = useUserStore((state) => ({
+    nickname: state.nickname
+  }));
 
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const { setKeyword } = useSearchStore<searchStoreType>((state) => state);
@@ -32,16 +33,8 @@ function Header() {
     await fetch('/api/auth/logout', {
       method: 'POST'
     });
-    localStorage.removeItem('user');
-    logout();
     alert('로그아웃 되었습니다.');
   };
-
-  useEffect(() => {
-    const loginedUser: LoginUser = JSON.parse(localStorage.getItem('user') as string) ?? null;
-    loginedUser ? login(loginedUser) : null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <header className="flex justify-center w-full h-[70px] shadow-lg shadow-gray-100">
@@ -77,9 +70,9 @@ function Header() {
               className="w-[300px] h-fit py-2 pl-10 pr-5 rounded-md border text-sm focus:outline-none"
             />
           </form>
-          <Link href={'/signup'}>{user ? '' : <HeaderButton intent="signUp">회원가입</HeaderButton>}</Link>
+          <Link href={'/signup'}>{nickname ? '' : <HeaderButton intent="signUp">회원가입</HeaderButton>}</Link>
 
-          {user ? (
+          {nickname ? (
             <>
               <Link href={'/post'}>
                 <HeaderButton intent="login">글쓰기</HeaderButton>

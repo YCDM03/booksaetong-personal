@@ -4,7 +4,7 @@ import PostList from '@/components/common/PostList';
 import EmptyState from '@/components/EmptyState';
 import { supabase } from '@/contexts/supabase.context';
 import { Posts } from '@/types/Post.type';
-import useUserStore from '@/zustand/userStore';
+import { useUserStore } from '@/zustand/userStore';
 import { useEffect, useState } from 'react';
 import 'swiper/css';
 import { Navigation } from 'swiper/modules';
@@ -14,8 +14,8 @@ function HomePage() {
   const [allPosts, setAllPosts] = useState<Posts[]>();
   const [locatedPosts, setLocatedPosts] = useState<Posts[]>();
 
-  const { user, isLoggedIn } = useUserStore();
-
+  const { address } = useUserStore();
+  console.log(address);
   useEffect(() => {
     (async () => {
       const { data: posts, error } = await supabase.from('products').select(`*, product_images(image_url)`);
@@ -27,7 +27,8 @@ function HomePage() {
   useEffect(() => {
     const located = allPosts?.filter((post) => {
       const postAddress = post.address.split(' ')[0] + post.address.split(' ')[1];
-      const userAddress = user?.address.split(' ')[0] + user?.address.split(' ')[1];
+      console.log(address);
+      const userAddress = address;
       return postAddress === userAddress;
     });
     setLocatedPosts(located);
@@ -48,7 +49,7 @@ function HomePage() {
       </PostList>
 
       <PostList title="내 근처 도서">
-        {isLoggedIn ? (
+        {address ? (
           <Swiper className="custom-swiper-container" modules={[Navigation]} slidesPerView={4} navigation>
             {locatedPosts?.map((post) => {
               return (
