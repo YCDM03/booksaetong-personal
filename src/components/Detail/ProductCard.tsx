@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SwiperSlider from '../common/Swiper/Slider';
 import Link from 'next/link';
-import { HeartIcon } from '@heroicons/react/outline'; // outline로 변경
+import { HeartIcon } from '@heroicons/react/outline';
+import { supabase } from '@/contexts/supabase.context';
 
 export interface Product {
   id: string;
@@ -27,16 +28,56 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, userData }) => {
   const [liked, setLiked] = useState(false);
 
-  const toggleLike = () => {
-    setLiked(!liked);
-    // 좋아요 상태를 서버에 저장하거나 로컬 상태만 변경할 수 있습니다.
+  useEffect(() => {
+    const fetchLikedStatus = async () => {
+      if (userData.length > 0 && products.length > 0) {
+        const { data, error } = await supabase
+          .from('product_likes')
+          .select('id')
+          .eq('user_id', userData[0].id)
+          .eq('product_id', products[0].id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching like status:', error);
+        } else if (data) {
+          setLiked(true);
+        }
+      }
+    };
+
+    fetchLikedStatus();
+  }, [userData, products]);
+
+  const toggleLike = async (productId: string) => {
+    if (liked) {
+      const { error } = await supabase
+        .from('product_likes')
+        .delete()
+        .eq('user_id', userData[0].id)
+        .eq('product_id', productId);
+
+      if (error) {
+        console.error('Error deleting like:', error);
+      } else {
+        setLiked(false);
+      }
+    } else {
+      const { error } = await supabase.from('product_likes').insert({ user_id: userData[0].id, product_id: productId });
+
+      if (error) {
+        console.error('Error inserting like:', error);
+      } else {
+        setLiked(true);
+      }
+    }
   };
 
   return (
     <>
       {products.length > 0 && (
         <div className="container flex justify-center my-10">
-          <div className=" w-[1440px] h-[480px] border-transparent rounded-md flex items-center place-content-evenly shadow-detail">
+          <div className="w-[1440px] h-[480px] border-transparent rounded-md flex items-center place-content-evenly shadow-detail">
             <div className="w-[500px] h-[400px]">
               {productImages[products[0].id] ? (
                 <SwiperSlider images={productImages[products[0]?.id]} />
@@ -48,16 +89,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
               <div>
                 <div>
                   <p className="font-bold text-3xl">{products[0].title}</p>
-                  <div className="flex itezms-center">
+                  <div className="flex items-center">
                     <HeartIcon
                       className={`h-6 w-6 text-red-500 cursor-pointer ${
                         liked ? 'text-red-600 fill-current' : 'text-gray-400 stroke-current'
                       }`}
-                      onClick={toggleLike}
+                      onClick={() => toggleLike(products[0].id)}
                     />
                   </div>
                 </div>
-                <p className="text-gray">{products[0].address}</p>
+                <p className="text-[#6A7280]">{products[0].address}</p>
                 <p className="my-4 text-lg">{products[0].price}원</p>
                 <p>{products[0].contents}</p>
               </div>
@@ -74,7 +115,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
                 )}
                 <div>
                   <p>{products[0].user_id}</p>
-                  <p className="text-gray">{products[0].address}</p>
+                  <p className="text-[#6A7280]">{products[0].address}</p>
                 </div>
                 {userData.length > 0 && products.length > 0 && (
                   <Link href={`/editpage/${products[0].id}`}>
