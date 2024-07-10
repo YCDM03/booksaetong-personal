@@ -19,5 +19,5 @@ export const POST = async (request: Request) => {
   }
   // public.users 테이블에 유저 정보 추가는 트리거를 통해 처리
 
-  return Response.json({ errorMsg: error?.message || null });
+  return Response.json({ data, errorMsg: error?.message || null });
 };
