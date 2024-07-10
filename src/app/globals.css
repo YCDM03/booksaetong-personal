@@ -3,20 +3,13 @@
 @tailwind utilities;
 
 @import 'swiper/css';
-@import 'swiper/css/navigation';
 @import 'swiper/css/pagination';
 
-/* Next and Prev buttons hidden */
-.swiper-button-next,
-.swiper-button-prev {
-  @apply hidden;
-}
-
-/* Custom pagination bullet color */
+/* Custom pagination bullet color  */
 .swiper-pagination-bullet {
-  @apply bg-main;
+  background-color: #ced7e3 !important;
 }
 
 .swiper-pagination-bullet-active {
-  @apply bg-sub;
+  background-color: #ced7e3 !important;
 }
