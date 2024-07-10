@@ -1,6 +1,14 @@
 export type Post = {
+  id: string;
   title: string;
-  imgURL: string[];
   price: number;
-  location: string;
+  address: string;
+};
+
+type ProductImage = {
+  image_url: string;
+};
+
+export type Posts = Post & {
+  product_images: ProductImage[];
 };
