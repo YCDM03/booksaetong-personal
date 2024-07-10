@@ -15,7 +15,7 @@ const config: Config = {
         gray: '#aaaaaa'
       },
       boxShadow: {
-        detail: '0px 0px 16px rgba(17, 17, 26, 0.1)'
+        detail: '0px 0px 18px rgba(46, 79, 251, 0.15)'
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

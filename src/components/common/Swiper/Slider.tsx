@@ -13,8 +13,8 @@ const SwiperSlider: React.FC<SliderProps> = ({ images }) => {
   return (
     <Swiper pagination={{ clickable: true }} navigation={true} modules={[Pagination, Navigation]} slidesPerView={1}>
       {images.map((image, index) => (
-        <SwiperSlide key={index}>
-          <img src={image} alt={`slide-${index}`} className="w-full h-full object-fit" />
+        <SwiperSlide key={index} className="w-full h-full flex justify-center items-center">
+          <img src={image} alt={`slide-${index}`} className="w-full h-full object-cover" />
         </SwiperSlide>
       ))}
     </Swiper>

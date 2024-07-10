@@ -5,3 +5,18 @@
 @import 'swiper/css';
 @import 'swiper/css/navigation';
 @import 'swiper/css/pagination';
+
+/* Next and Prev buttons hidden */
+.swiper-button-next,
+.swiper-button-prev {
+  @apply hidden;
+}
+
+/* Custom pagination bullet color */
+.swiper-pagination-bullet {
+  @apply bg-main;
+}
+
+.swiper-pagination-bullet-active {
+  @apply bg-sub;
+}
