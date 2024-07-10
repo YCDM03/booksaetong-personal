@@ -4,3 +4,11 @@ export type FormState = {
   nickname: string;
   address: string;
 };
+
+export type LoginUser = {
+  email: string;
+  id: string;
+  nickname: string;
+  address: string;
+  profile_url: string | null;
+};

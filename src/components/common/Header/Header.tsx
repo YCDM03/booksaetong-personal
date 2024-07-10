@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import HeaderButton from './HeaderButton';
-import { User } from '@/zustand/userStore';
+import { LoginUser } from '@/types/auth/auth.type';
 import { MouseEventHandler, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useUserStore from '@/zustand/userStore';
@@ -21,7 +21,7 @@ function Header() {
     alert('로그아웃 되었습니다.');
   };
   useEffect(() => {
-    const loginedUser: User = JSON.parse(localStorage.getItem('user') as string) ?? null;
+    const loginedUser: LoginUser = JSON.parse(localStorage.getItem('user') as string) ?? null;
     loginedUser ? login(loginedUser) : null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
