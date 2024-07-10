@@ -1,18 +1,20 @@
 'use client';
-import { FormEventHandler } from 'react';
-import { FormState } from '@/types/auth/auth.type';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import SelectArea from '@/components/Auth/SignupPage/SelectArea';
 
 function SignUpPage() {
   const router = useRouter();
-  const handleSubmit: FormEventHandler = async (event) => {
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const nickname = formData.get('nickname') as string;
-    const address = formData.get('address') as string;
+    const area = formData.get('area') as string;
+    const subArea = formData.get('subArea') as string;
 
     if (!email) {
       return alert('이메일을 입력해주세요');
@@ -20,8 +22,10 @@ function SignUpPage() {
       return alert('비밀번호를 6자리 이상 입력해주세요');
     } else if (!nickname) {
       return alert('닉네임을 입력해주세요');
-    } else if (!address) {
-      return alert('주소를 입력해주세요');
+    } else if (!area) {
+      return alert('지역을 선택해주세요');
+    } else if (!subArea) {
+      return alert('시/군/구 를 선택해주세요');
     }
 
     const response = await fetch('/api/auth/signup', {
@@ -79,19 +83,7 @@ function SignUpPage() {
             autoComplete="off"
           />
         </div>
-        <div className="flex flex-col">
-          <label className="text-sm text-slate-700" htmlFor="address">
-            주소
-          </label>
-          <input
-            id="address"
-            className="border w-80 h-8 rounded-md px-2"
-            type="text"
-            name="address"
-            placeholder="주소를 입력해 주세요(경기도 **시/군/구)"
-            autoComplete="off"
-          />
-        </div>
+        <SelectArea />
         <button className="border px-4 py-2 w-80 h-10 rounded-md bg-main text-white text-sm hover:brightness-90 active:brightness-75">
           회원가입
         </button>

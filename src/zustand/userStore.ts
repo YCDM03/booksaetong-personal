@@ -1,6 +1,4 @@
-import { SocketAddress } from 'net';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface User {
   address: string;

@@ -10,7 +10,7 @@ export const POST = async (request: Request) => {
     options: {
       data: {
         nickname: formData.get('nickname') as string,
-        address: formData.get('address') as string
+        address: ((formData.get('area') as string) + ' ' + formData.get('subArea')) as string
       }
     }
   });
