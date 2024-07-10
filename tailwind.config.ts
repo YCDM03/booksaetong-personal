@@ -11,8 +11,8 @@ const config: Config = {
       colors: {
         main: '#003069',
         sub: '#2E4FFB',
-        hover: '#CED7E3'
-        gray: "#aaaaaa"
+        hover: '#CED7E3',
+        gray: '#aaaaaa'
       },
       boxShadow: {
         detail: '0px 0px 16px rgba(17, 17, 26, 0.1)'
