@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import 'swiper/css';
+@import 'swiper/css/pagination';
+
+/* Custom pagination bullet color  */
+.swiper-pagination-bullet {
+  background-color: #ced7e3 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #ced7e3 !important;
+}
