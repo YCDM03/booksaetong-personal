@@ -9,54 +9,42 @@ function ProfilePage() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | ArrayBuffer | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [userId, setUserId] = useState<string | null>('550e8400-e29b-41d4-a716-446655440000');
+  const [userId, setUserId] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [address, setAddress] = useState('');
   const [notification, setNotification] = useState('');
 
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     const {
-  //       data: { session },
-  //       error
-  //     } = await supabase.auth.getSession();
-  //     if (session) {
-  //       const user = session.user;
-  //       setUserId(user.id);
-  //       const { data, error } = await supabase
-  //         .from('users')
-  //         .select('nickname, address, profile_url')
-  //         .eq('id', user.id)
-  //         .single();
-  //       if (data) {
-  //         setNickname(data.nickname);
-  //         setAddress(data.address);
-  //         setSelectedImage(data.profile_url);
-  //       }
-  //     } else {
-  //       console.error('No session found:', error);
-  //     }
-  //   };
-  //   fetchUserData();
-  // }, []);
-
   useEffect(() => {
     const fetchUserData = async () => {
-      const testUserId = '550e8400-e29b-41d4-a716-446655440000';
-      if (testUserId) {
-        setUserId(testUserId);
-        const { data, error } = await supabase
-          .from('users')
-          .select('nickname, address, profile_url')
-          .eq('id', testUserId)
-          .single();
-        if (data) {
-          setNickname(data.nickname);
-          setAddress(data.address);
-          setSelectedImage(data.profile_url);
-        }
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      if (userData?.sub) {
+        setUserId(userData.sub);
+        setNickname(userData.nickname);
+        setAddress(userData.address);
+        setSelectedImage(userData.profile_url);
       } else {
-        console.error('No user found');
+        const {
+          data: { session },
+          error
+        } = await supabase.auth.getSession();
+        if (session) {
+          const user = session.user;
+          setUserId(user.id);
+          const { data, error } = await supabase
+            .from('users')
+            .select('nickname, address, profile_url')
+            .eq('id', user.id)
+            .single();
+          if (data) {
+            setNickname(data.nickname);
+            setAddress(data.address);
+            setSelectedImage(data.profile_url);
+          } else {
+            console.error('유저 데이터를 가져오는 중 오류:', error);
+          }
+        } else {
+          console.error('No session found:', error);
+        }
       }
     };
     fetchUserData();
@@ -109,6 +97,11 @@ function ProfilePage() {
       console.error('프로필 URL을 업데이트하는 중 오류:', updateError);
       return;
     }
+
+    // 업데이트된 사용자 프로필 이미지를 로컬 스토리지에 저장
+    const updatedUserData = { ...JSON.parse(localStorage.getItem('user') || '{}'), profile_url: publicURL };
+    localStorage.setItem('user', JSON.stringify(updatedUserData));
+
     setNotification('프로필 이미지가 변경되었습니다.');
     setModalOpen(false);
   };
@@ -119,6 +112,9 @@ function ProfilePage() {
       if (error) {
         console.error('사용자 데이터를 업데이트하는 중 오류:', error);
       } else {
+        // 업데이트된 사용자 정보를 로컬 스토리지에 저장
+        const updatedUserData = { ...JSON.parse(localStorage.getItem('user') || '{}'), nickname, address };
+        localStorage.setItem('user', JSON.stringify(updatedUserData));
         setNotification('프로필 정보가 변경되었습니다.');
       }
     }
