@@ -6,16 +6,30 @@ function MypageLayout({ children }: PropsWithChildren) {
   return (
     <div className="flex flex-row max-w-[1224px] min-h-fit mx-auto my-10">
       <nav className="border w-[200px] h-[400px] py-10 rounded-md">
-        <ul className="flex flex-col text-sm cursor-pointer">
+        <ul className="flex flex-col text-sm cursor-pointer text-gray-600">
           <Link href={'./profile'}>
-            <Image src={'/assets/img/sidebar-img.png'} width={20} height={20} alt="프로필 아이콘" />
-            <li className="h-12 hover:bg-hover px-4">프로필 수정</li>
+            <li className="flex items-center h-12 hover:bg-hover px-4">
+              <Image
+                src={'/assets/img/header-profile.png'}
+                width={20}
+                height={20}
+                alt="프로필 아이콘"
+                className="mr-2"
+              />
+              <p>프로필 수정</p>
+            </li>
           </Link>
           <Link href={'./likes'}>
-            <li className="h-12 hover:bg-hover px-4">관심목록</li>
+            <li className="flex items-center h-12 hover:bg-hover px-4">
+              <Image src={'/assets/img/Heart.png'} width={20} height={20} alt="프로필 아이콘" className="mr-2" />
+              <p>관심 목록</p>
+            </li>
           </Link>
           <Link href={'./mysell'}>
-            <li className="h-12 hover:bg-hover px-4">판매내역</li>
+            <li className="flex items-center h-12 hover:bg-hover px-4">
+              <Image src={'/assets/img/sale.png'} width={20} height={20} alt="프로필 아이콘" className="mr-2" />
+              <p>내 판매글</p>
+            </li>
           </Link>
         </ul>
       </nav>
