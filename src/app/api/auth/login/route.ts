@@ -9,9 +9,14 @@ export const POST = async (request: Request) => {
     password: formData.get('password') as string
   });
 
+  const { data: users, error: userError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', data?.user?.user_metadata.email);
+
   if (error) {
     console.log('error message:', error?.message);
   }
 
-  return Response.json({ data, errorMsg: error?.message || null });
+  return Response.json({ users, errorMsg: error?.message || userError?.message || null });
 };

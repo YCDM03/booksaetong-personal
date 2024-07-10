@@ -1,5 +1,4 @@
 'use client';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SelectArea from '@/components/Auth/SignupPage/SelectArea';
 
