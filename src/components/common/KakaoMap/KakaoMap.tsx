@@ -1,73 +1,129 @@
-import Script from 'next/script';
+import { useEffect, useState } from 'react';
 import { Map, MapMarker } from 'react-kakao-maps-sdk';
-import { useState, useEffect } from 'react';
+import useUserStore from '@/zustand/userStore';
+import Script from 'next/script';
+
+type MarkerInfo = {
+  lat: number;
+  lng: number;
+  address: string;
+};
+
+type KakaoMapProps = {
+  onMarkerAddressChange: (markerInfo: MarkerInfo) => void;
+};
 
 const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`;
 
-const KakaoMap = () => {
-  const [info, setInfo] = useState(null);
-  const [markers, setMarkers] = useState([]);
-  const [map, setMap] = useState(null);
-  const [center, setCenter] = useState({ lat: 33.5563, lng: 126.79581 });
+const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
+  const [map, setMap] = useState<kakao.maps.Map | null>(null);
+  const [center, setCenter] = useState({ lat: 37.566826, lng: 126.9786567 });
+  const [markerPosition, setMarkerPosition] = useState({ lat: 37.566826, lng: 126.9786567 });
+  const [infoWindow, setInfoWindow] = useState<kakao.maps.InfoWindow | null>(null);
+  const [markerAddress, setMarkerAddress] = useState<string>(''); // State to store marker address
+  const user = useUserStore((state) => state.user);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = KAKAO_SDK_URL;
-    script.async = true;
-    script.onload = () => {
-      kakao.maps.load(() => {
-        if (!map) return;
-        const ps = new kakao.maps.services.Places();
+    const kakaoScript = document.createElement('script');
+    kakaoScript.src = KAKAO_SDK_URL;
+    kakaoScript.async = true;
+    kakaoScript.onload = () => {
+      const ps = new kakao.maps.services.Places();
+      if (!map || !user || !user.address) return;
 
-        ps.keywordSearch('이태원 맛집', (data, status, _pagination) => {
-          if (status === kakao.maps.services.Status.OK) {
-            // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
-            // LatLngBounds 객체에 좌표를 추가합니다
-            const bounds = new kakao.maps.LatLngBounds();
-            let markers = [];
+      ps.keywordSearch(user.address, (data, status, _pagination) => {
+        if (status === kakao.maps.services.Status.OK) {
+          const bounds = new kakao.maps.LatLngBounds();
+          data.forEach((place) => bounds.extend(new kakao.maps.LatLng(Number(place.y), Number(place.x))));
+          map.setBounds(bounds);
 
-            for (var i = 0; i < data.length; i++) {
-              markers.push({
-                position: {
-                  lat: parseFloat(data[i].y),
-                  lng: parseFloat(data[i].x)
-                },
-                content: data[i].place_name
-              });
-              bounds.extend(new kakao.maps.LatLng(parseFloat(data[i].y), parseFloat(data[i].x)));
-            }
-            setMarkers(markers);
+          const sw = bounds.getSouthWest();
+          const ne = bounds.getNorthEast();
+          const newCenter = {
+            lat: (sw.getLat() + ne.getLat()) / 2,
+            lng: (sw.getLng() + ne.getLng()) / 2
+          };
+          setCenter(newCenter);
+          setMarkerPosition(newCenter);
 
-            // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
-            map.setBounds(bounds);
-            setCenter({
-              lat: parseFloat(data[0].y),
-              lng: parseFloat(data[0].x)
-            });
-          }
-        });
+          geocodeAndSetMarkerAddress(newCenter.lat, newCenter.lng);
+
+          map.setLevel(3);
+        }
       });
     };
-    document.head.appendChild(script);
+
+    document.head.appendChild(kakaoScript);
 
     return () => {
-      document.head.removeChild(script);
+      document.head.removeChild(kakaoScript);
+    };
+  }, [map, user]);
+
+  useEffect(() => {
+    if (!map) return;
+
+    const infoWindow = new kakao.maps.InfoWindow({
+      content: '',
+      removable: false // Disable close button
+    });
+
+    setInfoWindow(infoWindow);
+
+    return () => {
+      infoWindow.close();
     };
   }, [map]);
+
+  const geocodeAndSetMarkerAddress = (lat: number, lng: number) => {
+    const geocoder = new kakao.maps.services.Geocoder();
+    geocoder.coord2Address(lng, lat, (result, status) => {
+      if (status === kakao.maps.services.Status.OK) {
+        if (result[0]) {
+          const address = result[0].address.address_name;
+          setMarkerPosition({ lat, lng });
+          setMarkerAddress(address); // Update marker address state
+
+          // Set content of InfoWindow
+          infoWindow?.setContent(address);
+
+          // Open InfoWindow at the marker position
+          if (map && infoWindow) {
+            const markerPosition = new kakao.maps.LatLng(lat, lng);
+            infoWindow.setContent(`
+              <div style="padding: 3px; min-width: 100px; max-width: 300px; white-space: nowrap;">
+                ${address}
+              </div>
+            `);
+            infoWindow.setPosition(markerPosition);
+            infoWindow.open(map, new kakao.maps.Marker({ position: markerPosition }));
+          }
+        }
+      }
+    });
+  };
+
+  const handleMarkerDragEnd = (target: kakao.maps.Marker) => {
+    const position = target.getPosition();
+    setMarkerPosition({
+      lat: position.getLat(),
+      lng: position.getLng()
+    });
+
+    // Update marker address
+    geocodeAndSetMarkerAddress(position.getLat(), position.getLng());
+
+    // Pass marker position and address to parent component
+    onMarkerAddressChange({ lat: position.getLat(), lng: position.getLng(), address: markerAddress });
+  };
 
   return (
     <>
       <Script src={KAKAO_SDK_URL} strategy="beforeInteractive" />
-      <Map center={center} style={{ width: '534px', height: '253px' }} level={3} onCreate={setMap}>
-        {markers.map((marker, index) => (
-          <MapMarker
-            key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}`}
-            position={marker.position}
-            onClick={() => setInfo(marker)}
-          >
-            {info && info.content === marker.content && <div style={{ color: '#000' }}>{marker.content}</div>}
-          </MapMarker>
-        ))}
+      <Map center={center} style={{ width: '534px', height: '253px' }} level={3} onCreate={(map) => setMap(map)}>
+        {map && (
+          <MapMarker position={markerPosition} draggable={true} onDragEnd={(target) => handleMarkerDragEnd(target)} />
+        )}
       </Map>
     </>
   );
