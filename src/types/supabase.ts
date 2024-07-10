@@ -43,15 +43,44 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'comments_user_id_fkey';
-            columns: ['user_id'];
-            isOneToOne: false;
-            referencedRelation: 'users';
-            referencedColumns: ['id'];
-          }
-        ];
-      };
-      product_ilkes: {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_images: {
+        Row: {
+          created_at: string
+          id: number
+          image_url: string | null
+          product_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          product_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_likes: {
         Row: {
           created_at: string;
           id: string;
@@ -79,43 +108,14 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'product_ilkes_user_id_fkey';
-            columns: ['user_id'];
-            isOneToOne: false;
-            referencedRelation: 'users';
-            referencedColumns: ['id'];
-          }
-        ];
-      };
-      product_images: {
-        Row: {
-          created_at: string;
-          id: number;
-          image_url: string | null;
-          product_id: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          id?: number;
-          image_url?: string | null;
-          product_id?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          id?: number;
-          image_url?: string | null;
-          product_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'product_images_product_id_fkey';
-            columns: ['product_id'];
-            isOneToOne: false;
-            referencedRelation: 'products';
-            referencedColumns: ['id'];
-          }
-        ];
-      };
+            foreignKeyName: "product_ilkes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           address: string | null;
@@ -195,8 +195,54 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
-    };
+      get_filtered_product_list: {
+        Args: {
+          category_list: string[]
+          keyword: string
+          request_limit: number
+          request_offset: number
+        }
+        Returns: {
+          id: string
+          title: string
+          address: string
+          price: number
+          like_count: number
+          image_url: string
+        }[]
+      }
+      get_filtered_products:
+        | {
+            Args: {
+              category_list: string[]
+              keyword: string
+              request_limit: number
+              request_offset: number
+            }
+            Returns: {
+              title: string
+              address: string
+              price: number
+              like_count: number
+              image_url: string
+            }[]
+          }
+        | {
+            Args: {
+              category_list: string[]
+              keyword: string
+              request_limit: number
+              request_offset: number
+            }
+            Returns: {
+              title: string
+              address: string
+              price: number
+              like_count: number
+              image_url: string
+            }[]
+          }
+    }
     Enums: {
       [_ in never]: never;
     };
