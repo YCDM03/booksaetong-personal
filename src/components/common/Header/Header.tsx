@@ -1,12 +1,11 @@
 'use client';
 
+import useUserStore, { User } from '@/zustand/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
-import HeaderButton from './HeaderButton';
-import { User } from '@/zustand/userStore';
-import { MouseEventHandler, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import useUserStore from '@/zustand/userStore';
+import { MouseEventHandler, useEffect } from 'react';
+import HeaderButton from './HeaderButton';
 
 function Header() {
   const { user, login, logout } = useUserStore();
@@ -58,15 +57,23 @@ function Header() {
             />
           </form>
           <Link href={'/signup'}>{user ? '' : <HeaderButton intent="signUp">회원가입</HeaderButton>}</Link>
-          <Link href={'/login'}>
-            {user ? (
-              <HeaderButton intent="logout" onClick={handleLogout}>
-                로그아웃
-              </HeaderButton>
-            ) : (
+
+          {user ? (
+            <>
+              <Link href={'/post'}>
+                <HeaderButton intent="login">글쓰기</HeaderButton>
+              </Link>
+              <Link href={'/login'}>
+                <HeaderButton intent="logout" onClick={handleLogout}>
+                  로그아웃
+                </HeaderButton>
+              </Link>
+            </>
+          ) : (
+            <Link href={'/login'}>
               <HeaderButton intent="login">로그인</HeaderButton>
-            )}
-          </Link>
+            </Link>
+          )}
         </div>
       </div>
     </header>
