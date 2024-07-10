@@ -3,7 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import HeaderButton from './HeaderButton';
-import useUserStore, { User } from '@/zustand/userStore';
+
+import { LoginUser } from '@/types/auth/auth.type';
+import useUserStore from '@/zustand/userStore';
 import { ChangeEvent, MouseEventHandler, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
@@ -19,8 +21,8 @@ function Header() {
     e.preventDefault();
 
     setKeyword(searchKeyword);
-    setSearchKeyword("");
-    if (currentPathName==='/list/all' || currentPathName === '/list/around') {
+    setSearchKeyword('');
+    if (currentPathName === '/list/all' || currentPathName === '/list/around') {
       router.push(`${currentPathName}`);
     } else {
       router.push('/list/all');
@@ -37,7 +39,7 @@ function Header() {
   };
 
   useEffect(() => {
-    const loginedUser: User = JSON.parse(localStorage.getItem('user') as string) ?? null;
+    const loginedUser: LoginUser = JSON.parse(localStorage.getItem('user') as string) ?? null;
     loginedUser ? login(loginedUser) : null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -51,8 +53,8 @@ function Header() {
           </Link>
           <nav>
             <ul className="flex ml-20 cursor-pointer text-sm text-gray-600 gap-8">
-              <Link href={"/list/all"}>전체도서목록</Link>
-              <Link href={"/list/around"}>내 근처 도서</Link>
+              <Link href={'/list/all'}>전체도서목록</Link>
+              <Link href={'/list/around'}>내 근처 도서</Link>
               <Link href={'/mypage/profile'}>
                 <li>마이페이지</li>
               </Link>
@@ -76,8 +78,7 @@ function Header() {
               className="w-[300px] h-fit py-2 pl-10 pr-5 rounded-md border text-sm focus:outline-none"
             />
           </form>
-          <Link href={'/signup'}>{user ? '' :
-            <HeaderButton intent="signUp">회원가입</HeaderButton>}</Link>
+          <Link href={'/signup'}>{user ? '' : <HeaderButton intent="signUp">회원가입</HeaderButton>}</Link>
           <Link href={'/login'}>
             {user ? (
               <HeaderButton intent="logout" onClick={handleLogout}>
