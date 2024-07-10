@@ -4,71 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/contexts/supabase.context';
 import SwiperSlider from '../common/Swiper/Slider';
 
-export interface Product {
-  id: string;
-  created_at: string;
-  title: string;
-  category: string;
-  price: number;
-  contents: string;
-  latitude: number;
-  longitude: number;
-  user_id: string;
-  address: string;
-}
-
 interface ProductImage {
   id: number;
   product_id: string;
   image_url: string;
 }
 
-function ProductCard() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [productImages, setProductImages] = useState<{ [key: string]: string[] }>({});
-  const [userData, setUserData] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      const { data: productData, error: productError } = await supabase.from('products').select('*');
-      const { data: imageData, error: imageError } = await supabase
-        .from('product_images')
-        .select('product_id, image_url');
-      const { data: userData, error: userError } = await supabase.from('users').select('*');
-
-      if (productError) {
-        console.error('Product data fetching error:', productError);
-        return;
-      }
-
-      if (imageError) {
-        console.error('Image data fetching error:', imageError);
-        return;
-      }
-
-      if (userError) {
-        console.error('User data fetching error:', userError);
-        return;
-      }
-
-      // Group images by product_id
-      const groupedImages: { [key: string]: string[] } = {};
-
-      imageData.forEach((image) => {
-        if (!groupedImages[image.product_id]) {
-          groupedImages[image.product_id] = [];
-        }
-        groupedImages[image.product_id].push(image.image_url);
-      });
-
-      setProducts(productData || []);
-      setProductImages(groupedImages);
-      setUserData(userData || []);
-    };
-
-    fetchData();
-  }, []);
-
+function ProductCard({ products, productImages, userData }) {
   return (
     <>
       {products.length > 0 && (
