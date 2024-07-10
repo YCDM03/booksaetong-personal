@@ -267,7 +267,7 @@
 
 "@tanstack/react-query@^5.50.1":
   version "5.50.1"
-  resolved "https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.50.1.tgz"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.50.1.tgz#2eb6f552e3ff108f532da4fab5bcaef71ed0ab03"
   integrity sha512-s0DW3rVBDPReDDovUjVqItVa3R2nPfUANK9nqGvarO2DwTiY9U4EBTsqizMxItRCoGgK5apeM7D3mxlHrSKpdQ==
   dependencies:
     "@tanstack/query-core" "5.50.1"
