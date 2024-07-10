@@ -9,7 +9,10 @@ function ProvidersLayout({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
       <Header />
-      {children}
+      <div className={"ml-auto mr-auto max-w-[1440px]"}>
+        {children}
+      </div>
+
     </QueryClientProvider>
   );
 }

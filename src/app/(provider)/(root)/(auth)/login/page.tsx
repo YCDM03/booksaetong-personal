@@ -37,7 +37,7 @@ function LoginPage() {
     }
   };
   return (
-    <div className="w-screen h-screen flex flex-col justify-center items-center content-center border">
+    <div className="max-w-screen h-screen flex flex-col justify-center items-center content-center">
       <h2 className="font-bold text-3xl">로그인</h2>
       <form
         className="flex flex-col w-96 h-96 justify-center items-center content-center gap-10"
