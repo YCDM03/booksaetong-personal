@@ -5,7 +5,7 @@ export type Post = {
   address: string;
 };
 
-type ProductImage = {
+export type ProductImage = {
   image_url: string;
 };
 
