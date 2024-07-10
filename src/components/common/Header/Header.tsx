@@ -1,8 +1,30 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import HeaderButton from './HeaderButton';
+import { User } from '@/zustand/userStore';
+import { MouseEventHandler, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import useUserStore from '@/zustand/userStore';
 
 function Header() {
+  const { user, login, logout } = useUserStore();
+
+  const router = useRouter();
+  const handleLogout: MouseEventHandler<HTMLButtonElement> = async () => {
+    await fetch('/api/auth/logout', {
+      method: 'POST'
+    });
+    localStorage.removeItem('user');
+    logout();
+    alert('로그아웃 되었습니다.');
+  };
+  useEffect(() => {
+    const loginedUser: User = JSON.parse(localStorage.getItem('user') as string) ?? null;
+    loginedUser ? login(loginedUser) : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <header className="flex justify-center w-full h-[70px] shadow-lg shadow-gray-100">
       <div className="flex flex-row items-center justify-between lg:w-2/3 md:w-full">
@@ -35,11 +57,15 @@ function Header() {
               className="w-[300px] h-fit py-2 pl-10 pr-5 rounded-md border text-sm focus:outline-none"
             />
           </form>
-          <Link href={'/signup'}>
-            <HeaderButton intent="signUp">회원가입</HeaderButton>
-          </Link>
+          <Link href={'/signup'}>{user ? '' : <HeaderButton intent="signUp">회원가입</HeaderButton>}</Link>
           <Link href={'/login'}>
-            <HeaderButton intent="login">로그인</HeaderButton>
+            {user ? (
+              <HeaderButton intent="logout" onClick={handleLogout}>
+                로그아웃
+              </HeaderButton>
+            ) : (
+              <HeaderButton intent="login">로그인</HeaderButton>
+            )}
           </Link>
         </div>
       </div>
