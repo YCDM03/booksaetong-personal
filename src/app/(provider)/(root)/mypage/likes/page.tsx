@@ -22,7 +22,6 @@ function LikePage() {
     <Page title="관심목록">
       <ul className="grid grid-cols-4 gap-5 w-full h-full mt-10">
         {likes?.map((like) => {
-          console.log(like);
           return <PostCard key={like.id} post={like} />;
         })}
       </ul>
