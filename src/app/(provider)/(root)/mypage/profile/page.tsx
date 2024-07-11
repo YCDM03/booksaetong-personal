@@ -8,6 +8,7 @@ import { useUserStore } from '@/zustand/userStore';
 import { LoadingCenter } from '@/components/common/Loading';
 import { Notification } from '@/components/common/Alert';
 import ImageUploadModal from '@/components/common/Modal/ImageUploadModal';
+import SelectArea from '@/components/Auth/SignupPage/SelectArea';
 
 function ProfilePage() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -18,6 +19,8 @@ function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [localNickname, setLocalNickname] = useState(nickname || '');
   const [localAddress, setLocalAddress] = useState(address || '');
+  const [localArea, setLocalArea] = useState('');
+  const [localSubArea, setLocalSubArea] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -32,9 +35,10 @@ function ProfilePage() {
             return;
           }
           if (!session) {
-            console.error('No session found:', error);
+            console.error('No session found');
             return;
           }
+
           const user = session.user;
           const { data, error: userError } = await supabase
             .from('users')
@@ -48,7 +52,10 @@ function ProfilePage() {
           if (data) {
             setUser(data.id, data.email, data.nickname, data.profile_url, data.address);
             setLocalNickname(data.nickname);
-            setLocalAddress(data.address);
+            // 주소를 지역과 시/군/구로 분리
+            const [area, subArea] = (data.address || '').split(' ');
+            setLocalArea(area || '');
+            setLocalSubArea(subArea || '');
             setSelectedImage(data.profile_url);
           }
         } catch (fetchError) {
@@ -58,7 +65,10 @@ function ProfilePage() {
         }
       } else {
         setLocalNickname(nickname || '');
-        setLocalAddress(address || '');
+        // 주소를 지역과 시/군/구로 분리
+        const [area, subArea] = (address || '').split(' ');
+        setLocalArea(area || '');
+        setLocalSubArea(subArea || '');
         setSelectedImage(profile_url);
         setIsLoading(false);
       }
@@ -113,15 +123,16 @@ function ProfilePage() {
 
   const handleSave = async () => {
     if (id) {
+      const newAddress = `${localArea} ${localSubArea}`.trim();
       const { error } = await supabase
         .from('users')
-        .update({ nickname: localNickname, address: localAddress })
+        .update({ nickname: localNickname, address: newAddress })
         .eq('id', id);
       if (error) {
         console.error('사용자 데이터를 업데이트하는 중 오류:', error);
       } else {
         // Zustand 스토어 업데이트
-        setUser(id, useUserStore.getState().email!, localNickname, profile_url!, localAddress);
+        setUser(id, useUserStore.getState().email!, localNickname, profile_url!, newAddress);
         setNotification('프로필 정보가 변경되었습니다.');
       }
     }
@@ -180,20 +191,11 @@ function ProfilePage() {
                 id="nickname"
                 value={localNickname}
                 onChange={(e) => setLocalNickname(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-main rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-400"
               />
             </div>
-            <div className="mb-4">
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                주&nbsp;&nbsp;&nbsp;소
-              </label>
-              <input
-                type="text"
-                id="address"
-                value={localAddress}
-                onChange={(e) => setLocalAddress(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-main rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-500"
-              />
+            <div className="pb-3 mb-4 border border-gray-300 rounded-md shadow-sm">
+              <SelectArea area={localArea} subArea={localSubArea} setArea={setLocalArea} setSubArea={setLocalSubArea} />
             </div>
             <button
               onClick={handleSave}
