@@ -15,7 +15,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
   const [liked, setLiked] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const userId = JSON.parse(sessionStorage.getItem('logInUser'));
 
   useEffect(() => {
     const fetchLikedStatus = async () => {
@@ -54,28 +53,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
     fetchUserEmail();
   }, [products]);
 
-  // useEffect(() => {
-  //   const checkLoggedIn = async () => {
-  //     try {
-  //       const user = supabase.auth.getSession();
+  useEffect(() => {
+    const checkLoggedIn = async () => {
+      try {
+        const user = supabase.auth.session();
 
-  //       // supabase.auth.user()가 비동기 함수이므로 user 객체가 존재하는지 확인
-  //       if (user_id) {
-  //         setIsLoggedIn(true);
-  //       } else {
-  //         setIsLoggedIn(false);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error checking user session:', error);
-  //     }
-  //   };
+        // supabase.auth.session()에서 가져온 user 객체가 null이 아닌지 확인
+        if (user !== null) {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error('Error checking user session:', error);
+      }
+    };
 
-  //   checkLoggedIn();
-  // }, []); // 빈 배열을 넣어 한 번만 실행되도록 설정
+    checkLoggedIn();
+  }, []); // 빈 배열을 넣어 한 번만 실행되도록 설정
 
   const toggleLike = async (productId: string) => {
     if (!isLoggedIn) {
-      // Handle case where user is not logged in
       console.log('User is not logged in.');
       return;
     }
