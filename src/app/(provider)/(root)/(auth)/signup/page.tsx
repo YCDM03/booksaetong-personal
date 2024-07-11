@@ -9,19 +9,11 @@ function SignUpPage() {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const nickname = formData.get('nickname') as string;
+
     const area = formData.get('area') as string;
     const subArea = formData.get('subArea') as string;
 
-    if (!email) {
-      return alert('이메일을 입력해주세요');
-    } else if (password.length < 6) {
-      return alert('비밀번호를 6자리 이상 입력해주세요');
-    } else if (!nickname) {
-      return alert('닉네임을 입력해주세요');
-    } else if (!area) {
+    if (!area) {
       return alert('지역을 선택해주세요');
     } else if (!subArea) {
       return alert('시/군/구 를 선택해주세요');
@@ -53,7 +45,7 @@ function SignUpPage() {
             type="email"
             name="email"
             placeholder="이메일을 입력해 주세요"
-            autoComplete="off"
+            required
           />
         </div>
         <div className="flex flex-col">
@@ -67,6 +59,8 @@ function SignUpPage() {
             name="password"
             placeholder="비밀번호 6자리 이상 입력해 주세요"
             autoComplete="off"
+            minLength={6}
+            required
           />
         </div>
         <div className="flex flex-col">
@@ -80,6 +74,7 @@ function SignUpPage() {
             name="nickname"
             placeholder="닉네임을 입력해 주세요"
             autoComplete="off"
+            required
           />
         </div>
         <SelectArea />

@@ -11,8 +11,9 @@ import HeaderButton from './HeaderButton';
 function Header() {
   const router = useRouter();
   const currentPathName = usePathname();
-  const { nickname } = useUserStore((state) => ({
-    nickname: state.nickname
+  const { nickname, clearUser } = useUserStore((state) => ({
+    nickname: state.nickname,
+    clearUser: state.clearUser
   }));
 
   const [searchKeyword, setSearchKeyword] = useState<string>('');
@@ -33,6 +34,7 @@ function Header() {
     await fetch('/api/auth/logout', {
       method: 'POST'
     });
+    clearUser();
     alert('로그아웃 되었습니다.');
   };
 
