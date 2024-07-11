@@ -8,7 +8,7 @@ import { useUserStore } from '@/zustand/userStore';
 import { LoadingCenter } from '@/components/common/Loading';
 import { Notification } from '@/components/common/Alert';
 import { useRouter } from 'next/navigation';
-import { ImageUploadModal } from '@/components/common/Modal';
+import ImageUploadModal from '@/components/common/Modal/ImageUploadModal';
 
 function ProfilePage() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -76,25 +76,13 @@ function ProfilePage() {
     setModalOpen(false);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const handleImageUpload = async (file: File) => {
+    setSelectedFile(file);
 
-  const handleImageUpload = async () => {
-    if (!selectedImage || !id || !selectedFile) return;
-
-    const cleanFileName = selectedFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
     const filePath = `profiles/${id}/${Date.now()}_${cleanFileName}`;
 
-    const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, selectedFile);
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
     if (uploadError) {
       console.error('업로드에러 :', uploadError);
       setNotification('업로드 중 에러가 발생했습니다.');
@@ -109,6 +97,7 @@ function ProfilePage() {
     }
 
     const publicURL = data.publicUrl;
+    console.log('Public URL:', publicURL);
 
     const { error: updateError } = await supabase.from('users').update({ profile_url: publicURL }).eq('id', id);
     if (updateError) {
@@ -117,8 +106,11 @@ function ProfilePage() {
     }
 
     // Zustand 스토어 업데이트
-    setUser(id, useUserStore.getState().email!, localNickname, publicURL, localAddress);
+    if (id) {
+      setUser(id, useUserStore.getState().email!, localNickname, publicURL, localAddress);
+    }
     setNotification('프로필 이미지가 변경되었습니다.');
+    setSelectedImage(publicURL);
     setModalOpen(false);
   };
 
