@@ -7,8 +7,10 @@ import Image from 'next/image';
 import { supabase } from '@/contexts/supabase.context';
 import { uuid } from 'uuidv4';
 import { useUserStore } from '@/zustand/userStore';
+import { useRouter } from 'next/navigation';
 
 const PostPage: NextPage = () => {
+  const router = useRouter();
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [title, setTitle] = useState('');
@@ -44,6 +46,12 @@ const PostPage: NextPage = () => {
     }
   };
 
+  const handleImageClick = (index: number) => {
+    const newImages = [...images];
+    newImages.splice(index, 1);
+    setImages(newImages);
+  };
+
   const handleMarkerPositionChange = (position: { lat: number; lng: number; address: string }) => {
     setMarkerPosition({ latitude: position.lat, longitude: position.lng });
     setAddress(position.address); // 주소 정보 업데이트
@@ -59,9 +67,7 @@ const PostPage: NextPage = () => {
       return;
     }
 
-    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-
-    debugger;
+    const { data } = await supabase.storage.from('avatars').getPublicUrl(filePath); // await 추가
 
     if (!data || !data.publicUrl) {
       console.error('public URL 반환에러');
@@ -139,13 +145,8 @@ const PostPage: NextPage = () => {
           setCurrentIndex(0);
           setMarkerPosition({ latitude: 0, longitude: 0 });
 
-          // 파일 업로드 필드 초기화
-          const fileInput = document.getElementById('image') as HTMLInputElement;
-          if (fileInput) {
-            fileInput.value = '';
-          }
-
           console.log('모든 데이터 저장을 완료했습니다.');
+          router.push('/');
         } catch (error) {
           console.error('데이터 저장 중 오류 발생:', error.message);
         }
@@ -159,11 +160,14 @@ const PostPage: NextPage = () => {
 
   const deleteProduct = async (productsId) => {
     const { error } = await supabase.from('products').delete().eq('Id', productsId);
+    if (error) {
+      console.error('상품 삭제 오류:', error.message);
+    }
   };
 
   return (
     <div className="flex flex-col h-[800px]">
-      <div className="flex-grow relative border-2 border-gray-300 mx-20 mt-10 mb-2 rounded-lg flex flex-col">
+      <div className="flex-grow relative border-2 border-bg-main mx-20 mt-10 mb-2 rounded-lg flex flex-col">
         <div className="absolute top-4 left-4 z-10">
           <p className="text-xl font-bold text-gray-800">판매등록하기</p>
         </div>
@@ -252,15 +256,20 @@ const PostPage: NextPage = () => {
               )}
               <div className="flex space-x-0">
                 {[...Array(4)].map((_, index) => (
-                  <div key={index} className="w-40 h-40 border border-gray-300 rounded-md overflow-hidden">
+                  <div key={index} className="w-40 h-32 border border-gray-300 rounded-md overflow-hidden">
                     {images[currentIndex + index] && (
-                      <Image
-                        src={images[currentIndex + index]}
-                        alt={`preview-${index}`}
-                        width={300}
-                        height={300}
-                        className="object-cover"
-                      />
+                      <div className="relative" onClick={() => handleImageClick(currentIndex + index)}>
+                        <Image
+                          src={images[currentIndex + index]}
+                          alt={`preview-${index}`}
+                          width={300}
+                          height={300}
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm cursor-pointer hover:bg-opacity-70">
+                          삭제
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -274,7 +283,7 @@ const PostPage: NextPage = () => {
                 </button>
               )}
               <div className="absolute top-44 bottom-0 left-0 right-0 z-0">
-                <p className="text-gray-600">거래 희망</p>
+                <p className="text-gray-600">거래 희망 위치</p>
                 <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} />
               </div>
             </div>
@@ -284,7 +293,7 @@ const PostPage: NextPage = () => {
         <div className="absolute bottom-4 right-4 z-10">
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none"
+            className="px-4 py-2 bg-main text-white rounded-md shadow hover:bg-hover focus:outline-none"
           >
             작성 완료
           </button>
