@@ -4,6 +4,7 @@ import Comments from '@/components/Detail/Comments';
 import Location from '@/components/Detail/Location';
 import ProductCard, { Product } from '@/components/Detail/ProductCard';
 import ProductIntro from '@/components/Detail/ProductIntro';
+import RandomPostCardList from '@/components/Detail/RandomPostCardList';
 import { supabase } from '@/contexts/supabase.context';
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
@@ -51,7 +52,7 @@ function DetailPage({ params }: { params: { id: string } }) {
       setProducts(productData || []);
       setProductImages(groupedImages);
 
-      // Fetch user data (if needed)
+      // Fetch user data
       const { data: userData, error: userError } = await supabase.from('users').select('*');
 
       if (userError) {
@@ -88,10 +89,7 @@ function DetailPage({ params }: { params: { id: string } }) {
             src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&autoload=false`}
           />
         )}
-        <div className="w-full lg:w-[1000px] py-8">
-          <h6 className="text-2xl font-bold mb-2">최근 도서</h6>
-          <div>카드</div>
-        </div>
+        <RandomPostCardList />
         <Comments />
       </div>
     </div>
