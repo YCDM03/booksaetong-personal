@@ -194,7 +194,10 @@ function ProfilePage() {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-400"
               />
             </div>
-            <div className="pb-3 mb-4 border border-gray-300 rounded-md shadow-sm">
+            <label htmlFor="nickname" className="block mb-1 text-sm font-medium text-gray-700">
+              주&nbsp;&nbsp;&nbsp;소
+            </label>
+            <div className="p-2 mb-4 border border-gray-300 rounded-md shadow-sm">
               <SelectArea area={localArea} subArea={localSubArea} setArea={setLocalArea} setSubArea={setLocalSubArea} />
             </div>
             <button

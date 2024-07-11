@@ -77,7 +77,10 @@ function SignUpPage() {
             required
           />
         </div>
-        <SelectArea />
+        <div>
+          <p className="text-sm ml-9 mb-3 font-medium text-gray-500">거주지를 선택해 주세요 !</p>
+          <SelectArea />
+        </div>
         <button className="border px-4 py-2 w-80 h-10 rounded-md bg-main text-white text-sm hover:brightness-90 active:brightness-75">
           회원가입
         </button>
