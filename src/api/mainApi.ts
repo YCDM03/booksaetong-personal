@@ -24,7 +24,8 @@ export const getAllPostList = async ({ queryKey }) => {
       title: product.title,
       address: product.address,
       price: product.price,
-      product_images: Array.of({ image_url: product.image_url })
+      product_images: Array.of({ image_url: product.image_url }),
+      user_id: product.user_id
     };
   });
 

@@ -1,10 +1,9 @@
 import { supabase } from '@/contexts/supabase.context';
-import { NextResponse } from 'next/server';
 import { Database } from '@/types/supabase';
+import { NextResponse } from 'next/server';
 
 export const GET = async (request: Request) => {
   try {
-
     const { searchParams } = new URL(request.url);
     const keyword = searchParams.get('keyword') as string;
     const requestLimit = parseInt(searchParams.get('requestLimit') as string, 10) as number;
