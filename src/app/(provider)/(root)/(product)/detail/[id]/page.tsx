@@ -22,7 +22,7 @@ export interface Product {
   address: string;
 }
 
-interface User {
+export interface User {
   id: string;
   profile_url: string;
 }

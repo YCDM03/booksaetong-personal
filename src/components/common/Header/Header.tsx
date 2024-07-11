@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
+import AuthAlert from '@/components/Auth/AuthAlert';
 
 function Header() {
   const router = useRouter();
@@ -15,6 +16,13 @@ function Header() {
     nickname: state.nickname,
     clearUser: state.clearUser
   }));
+
+  const [authAlert, setAuthAlert] = useState('');
+  const [logoutSuccess, setLogoutSuccess] = useState(false);
+
+  const closeAuthAlert = () => {
+    setAuthAlert('');
+  };
 
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const { setKeyword } = useSearchStore<searchStoreType>((state) => state);
@@ -35,12 +43,14 @@ function Header() {
       method: 'POST'
     });
     clearUser();
-    alert('로그아웃 되었습니다.');
+    setLogoutSuccess(true);
+    setAuthAlert('로그아웃 되었습니다.');
   };
 
   return (
     <header className="flex justify-center w-screen h-[70px] shadow-lg shadow-gray-100">
       <div className="flex flex-row items-center justify-between lg:w-2/3 md:w-full">
+        <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={true} success={logoutSuccess} />
         <div className="flex items-center">
           <Link href={'/'}>
             <h1 className="text-xl font-semibold cursor-pointer">북새통</h1>
@@ -49,9 +59,13 @@ function Header() {
             <ul className="flex ml-20 cursor-pointer text-sm text-gray-600 gap-8">
               <Link href={'/list/all'}>전체도서목록</Link>
               <Link href={'/list/around'}>내 근처 도서</Link>
-              <Link href={'/mypage/profile'}>
-                <li>마이페이지</li>
-              </Link>
+              {nickname ? (
+                <Link href={'/mypage/profile'}>
+                  <li>마이페이지</li>
+                </Link>
+              ) : (
+                ''
+              )}
             </ul>
           </nav>
         </div>
@@ -79,11 +93,9 @@ function Header() {
               <Link href={'/post'}>
                 <HeaderButton intent="login">글쓰기</HeaderButton>
               </Link>
-              <Link href={'/login'}>
-                <HeaderButton intent="logout" onClick={handleLogout}>
-                  로그아웃
-                </HeaderButton>
-              </Link>
+              <HeaderButton intent="logout" onClick={handleLogout}>
+                로그아웃
+              </HeaderButton>
             </>
           ) : (
             <Link href={'/login'}>
