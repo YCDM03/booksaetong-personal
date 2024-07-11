@@ -1,15 +1,23 @@
 'use client';
 
+import AuthAlert from '@/components/Auth/AuthAlert';
 import { useUserStore } from '@/zustand/userStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
 function LoginPage() {
   const router = useRouter();
   const { setUser } = useUserStore((state) => ({
     setUser: state.setUser
   }));
+
+  const [authAlert, setAuthAlert] = useState('');
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  const closeAuthAlert = () => {
+    setAuthAlert('');
+  };
 
   const handleSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
@@ -21,7 +29,8 @@ function LoginPage() {
     const emailRegExp = /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
 
     if (!emailRegExp.test(email)) {
-      return alert('올바른 이메일 양식을 입력해주세요');
+      setLoginSuccess(false);
+      return setAuthAlert('올바른 이메일 양식을 입력해주세요');
     }
 
     const response = await fetch('/api/auth/login', {
@@ -31,17 +40,22 @@ function LoginPage() {
     const { users, errorMsg } = await response.json();
 
     if (errorMsg === 'Invalid login credentials') {
-      return alert('유저 정보가 틀렸거나 존재하지 않습니다.');
+      setLoginSuccess(false);
+      return setAuthAlert(`유저 정보가 틀렸거나 존재하지 않습니다.`);
     } else if (response.status === 200) {
-      alert('로그인 성공!');
+      setLoginSuccess(true);
+      setAuthAlert('로그인 성공! 메인 페이지로 이동합니다.');
       const { id, nickname, address, email, profile_url }: { [key: string]: string } = users[0];
       setUser(id, email, nickname, profile_url, address);
-      router.push('/');
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
     }
   };
 
   return (
     <div className="max-w-screen h-screen flex flex-col justify-center items-center content-center">
+      <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={true} success={loginSuccess} />
       <h2 className="font-bold text-3xl">로그인</h2>
       <form
         className="flex flex-col w-96 h-96 justify-center items-center content-center gap-10"
