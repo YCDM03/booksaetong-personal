@@ -3,7 +3,7 @@ import { pageProductListType } from '@/types/list/productList.type';
 
 function ProductList({ pageList }: pageProductListType[]) {
   return (
-    <div className={'flex flex-wrap gap-10'}>
+    <div className={'flex flex-wrap'}>
       {Array.isArray(pageList) &&
         pageList.map((page) => {
           return page.productList.map((product) => {

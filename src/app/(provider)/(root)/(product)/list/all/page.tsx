@@ -55,12 +55,12 @@ function ListOfAllPage() {
   }, []);
 
   return (
-    <div className={'flex gap-10 pt-[100px] w-full'}>
+    <div className={'flex gap-10 mt-[100px]'}>
       <div>
         <CategoryFilter checkBoxOptions={defaultOptions}></CategoryFilter>
       </div>
       <div className={'w-full'}>
-        <div className={'flex flex-col gap-2'}>
+        <div className={'flex flex-col'}>
           <ProductListHeader keyword={keyword} title={'도서 전체 목록'}>
             {
               data?.pages[0].productList.length !== 0 ?

@@ -56,8 +56,7 @@ function ListOfAroundPage() {
   }, []);
 
   return (
-    <div className={'flex gap-10 pt-[100px] w-full'}>
-      <div className={'flex flex-col gap-2 w-full'}>
+    <div className={'flex mt-[100px] w-full flex-col '}>
         <ProductListHeader title={'내 근처 도서목록'} keyword={keyword}>
           {data?.pages[0].productList.length !== 0 ? (
             <ProductList pageList={data?.pages} />
@@ -65,7 +64,6 @@ function ListOfAroundPage() {
             <ProductListEmpty />
           )}
         </ProductListHeader>
-      </div>
     </div>
   );
 }
