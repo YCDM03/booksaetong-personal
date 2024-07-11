@@ -48,7 +48,7 @@ function Header() {
   };
 
   return (
-    <header className="flex justify-center w-full h-[70px] shadow-lg shadow-gray-100">
+    <header className="flex justify-center w-screen h-[70px] shadow-lg shadow-gray-100">
       <div className="flex flex-row items-center justify-between lg:w-2/3 md:w-full">
         <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={true} success={logoutSuccess} />
         <div className="flex items-center">
