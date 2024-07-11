@@ -1,8 +1,11 @@
 import { pageProductListType, ProductListType } from '@/types/list/productList.type';
 
-export const getAllProductList = async ({ pageParam = 0, queryKey }): Promise<pageProductListType> => {
-  const [_, {keyword, requestCategoryList, requestLimit}] = queryKey;
-  debugger
+export const getAllProductList = async ({
+                                          pageParam = 0,
+                                          queryKey
+                                        }): Promise<pageProductListType> => {
+  const [_, { keyword, requestCategoryList, requestLimit }] = queryKey;
+
   const queryParams = new URLSearchParams({
     keyword,
     categoryList: JSON.stringify(requestCategoryList),
@@ -20,16 +23,19 @@ export const getAllProductList = async ({ pageParam = 0, queryKey }): Promise<pa
         title: product.title,
         address: product.address,
         price: product.price,
-        product_images: Array.of({image_url: product.image_url})
+        product_images: Array.of({ image_url: product.image_url })
       };
     }),
     nextPage: ProductList.length === requestLimit ? pageParam + 1 : undefined
   };
 };
 
-export const getGroundProductList = async ({ pageParam = 0, queryKey }): Promise<pageProductListType> => {
-  const [_, {keyword,requestAddress, requestLimit}] = queryKey;
-  debugger
+export const getGroundProductList = async ({
+                                             pageParam = 0,
+                                             queryKey
+                                           }): Promise<pageProductListType> => {
+  const [_, { keyword, requestAddress, requestLimit }] = queryKey;
+
   const queryParams = new URLSearchParams({
     keyword,
     requestLimit,
@@ -37,7 +43,7 @@ export const getGroundProductList = async ({ pageParam = 0, queryKey }): Promise
     requestOffset: requestLimit * pageParam
   });
 
-  debugger
+
   const response = await fetch(`/api/list/around?${queryParams.toString()}`);
   const ProductList: ProductListType[] = await response.json();
 
@@ -48,7 +54,7 @@ export const getGroundProductList = async ({ pageParam = 0, queryKey }): Promise
         title: product.title,
         address: product.address,
         price: product.price,
-        product_images: Array.of({image_url: product.image_url})
+        product_images: Array.of({ image_url: product.image_url })
       };
     }),
     nextPage: ProductList.length === requestLimit ? pageParam + 1 : undefined
