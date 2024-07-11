@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ProductListHeader({keyword, title, children}) {
+function ProductListHeader({ keyword, title, children }) {
   return (
     <div className={'flex flex-col gap-2'}>
       {keyword && <div className={'font-bold, text-3xl'}>{`\"${keyword}\"`} 결과 입니다.</div>}

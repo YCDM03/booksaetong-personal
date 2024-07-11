@@ -7,7 +7,6 @@ import ProductList from '@/components/list/ProductList';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
 import { getAllProductList } from '@/api/listApi';
 import ProductListHeader from '@/components/list/ProductListHeader';
-import EmptyState from '@/components/EmptyState';
 import ProductListEmpty from '@/components/list/ProductListEmpty';
 
 function ListOfAllPage() {
@@ -60,14 +59,14 @@ function ListOfAllPage() {
       <div>
         <CategoryFilter checkBoxOptions={defaultOptions}></CategoryFilter>
       </div>
-      <div className={"w-full"}>
+      <div className={'w-full'}>
         <div className={'flex flex-col gap-2'}>
-          <ProductListHeader keyword={keyword} title={"도서 전체 목록"}>
+          <ProductListHeader keyword={keyword} title={'도서 전체 목록'}>
             {
               data?.pages[0].productList.length !== 0 ?
                 <ProductList pageList={data?.pages} />
                 :
-                <ProductListEmpty/>
+                <ProductListEmpty />
             }
           </ProductListHeader>
         </div>
