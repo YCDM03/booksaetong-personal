@@ -32,7 +32,6 @@ function HomePage() {
     queryFn: getAllPostList
   });
 
-  console.log(allPosts);
   useEffect(() => {
     const located = allPosts?.filter((post) => {
       if (!address) return false;
@@ -63,7 +62,7 @@ function HomePage() {
 
       <PostList title="내 근처 도서">
         {address ? (
-          locatedPosts && (
+          locatedPosts && locatedPosts.length > 0 ? (
             <Swiper className="w-full" modules={[Navigation]} slidesPerView={4} navigation>
               {locatedPosts.map((post, index) => {
                 if (index > 9) return false;
@@ -74,6 +73,10 @@ function HomePage() {
                 );
               })}
             </Swiper>
+          ) : (
+            <div className="flex w-full h-fit justify-center items-center">
+              <EmptyState empty="주소 근처에 도서가" isButtonExist={false} />
+            </div>
           )
         ) : (
           <div className="flex w-full h-fit justify-center items-center">
