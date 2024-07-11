@@ -39,6 +39,7 @@ function LoginPage() {
       router.push('/');
     }
   };
+
   return (
     <div className="max-w-screen h-screen flex flex-col justify-center items-center content-center">
       <h2 className="font-bold text-3xl">로그인</h2>
