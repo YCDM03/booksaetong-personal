@@ -3,7 +3,12 @@
 import { useState } from 'react';
 import { areaData } from './areaData';
 
-function SelectArea() {
+interface SelectAreaProps {
+  area?: string;
+  subArea?: string;
+}
+
+function SelectArea({ area, subArea }: SelectAreaProps) {
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
 
   const handleSelectArea = (event: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -14,7 +19,7 @@ function SelectArea() {
     <div className="flex flex-col items-center w-80">
       <h5 className="text-sm  text-slate-700 my-2">거주지를 선택해주세요!</h5>
       <div className="flex justify-center gap-5">
-        <select className="w-24" name="area" id="area" onChange={handleSelectArea}>
+        <select className="w-24" name="area" id="area" onChange={handleSelectArea} defaultValue={area}>
           <option className="hidden" key={'지역'} value={''}>
             지역
           </option>
@@ -26,7 +31,7 @@ function SelectArea() {
             );
           })}
         </select>
-        <select className="w-24" name="subArea" id="subArea">
+        <select className="w-24" name="subArea" id="subArea" defaultValue={subArea}>
           <option className="hidden" key={'시/군/구'} value={''}>
             시/군/구
           </option>

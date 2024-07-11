@@ -7,7 +7,9 @@ import { FormEventHandler } from 'react';
 
 function LoginPage() {
   const router = useRouter();
-  const setUser = useUserStore((state) => state.setUser);
+  const { setUser } = useUserStore((state) => ({
+    setUser: state.setUser
+  }));
 
   const handleSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
@@ -16,8 +18,10 @@ function LoginPage() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    if (!email) {
-      return alert('이메일을 입력해주세요');
+    const emailRegExp = /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+    if (!emailRegExp.test(email)) {
+      return alert('올바른 이메일 양식을 입력해주세요');
     }
 
     const response = await fetch('/api/auth/login', {
@@ -27,7 +31,7 @@ function LoginPage() {
     const { users, errorMsg } = await response.json();
 
     if (errorMsg === 'Invalid login credentials') {
-      return alert('올바른 유저 정보를 입력해주세요');
+      return alert('유저 정보가 틀렸거나 존재하지 않습니다.');
     } else if (response.status === 200) {
       alert('로그인 성공!');
       const { id, nickname, address, email, profile_url }: { [key: string]: string } = users[0];
@@ -52,7 +56,7 @@ function LoginPage() {
             type="email"
             name="email"
             placeholder="아이디를 입력해 주세요"
-            autoComplete="off"
+            required
           />
         </div>
         <div className="flex flex-col">
@@ -66,6 +70,8 @@ function LoginPage() {
             name="password"
             placeholder="패스워드를 입력해 주세요"
             autoComplete="off"
+            minLength={6}
+            required
           />
         </div>
 
