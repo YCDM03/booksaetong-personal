@@ -1,14 +1,12 @@
 'use client';
 
+import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
+import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
-import HeaderButton from './HeaderButton';
-
-import { LoginUser } from '@/types/auth/auth.type';
-import { useUserStore } from '@/zustand/userStore';
-import { ChangeEvent, FormEvent, MouseEventHandler, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
+import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
+import HeaderButton from './HeaderButton';
 
 function Header() {
   const router = useRouter();
@@ -73,15 +71,23 @@ function Header() {
             />
           </form>
           <Link href={'/signup'}>{nickname ? '' : <HeaderButton intent="signUp">회원가입</HeaderButton>}</Link>
-          <Link href={'/login'}>
-            {nickname ? (
-              <HeaderButton intent="logout" onClick={handleLogout}>
-                로그아웃
-              </HeaderButton>
-            ) : (
+
+          {nickname ? (
+            <>
+              <Link href={'/post'}>
+                <HeaderButton intent="login">글쓰기</HeaderButton>
+              </Link>
+              <Link href={'/login'}>
+                <HeaderButton intent="logout" onClick={handleLogout}>
+                  로그아웃
+                </HeaderButton>
+              </Link>
+            </>
+          ) : (
+            <Link href={'/login'}>
               <HeaderButton intent="login">로그인</HeaderButton>
-            )}
-          </Link>
+            </Link>
+          )}
         </div>
       </div>
     </header>
