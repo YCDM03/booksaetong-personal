@@ -135,7 +135,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
                   </div>
                 </div>
                 {loggedInUserId === products[0].user_id && (
-                  <Link href={`/editpage/${products[0].id}`}>
+                  <Link href={`/edit/${products[0].id}`}>
                     <button className="mt-6 bg-main text-white font-medium w-40 py-2.5 px-4 rounded-md hover:bg-hover">
                       글 수정하기
                     </button>
