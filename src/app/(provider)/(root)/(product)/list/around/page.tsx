@@ -7,6 +7,7 @@ import { getGroundProductList } from '@/api/listApi';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
 import { useUserStore } from '@/zustand/userStore';
 import ProductListHeader from '@/components/list/ProductListHeader';
+import ProductListEmpty from '@/components/list/ProductListEmpty';
 
 function ListOfAroundPage() {
   const { userAddress } = useUserStore((state) => ({
@@ -55,13 +56,13 @@ function ListOfAroundPage() {
   }, []);
 
   return (
-    <div className={'flex gap-10 pt-[100px]'}>
-      <div className={'flex flex-col gap-2'}>
+    <div className={'flex gap-10 pt-[100px] w-full'}>
+      <div className={'flex flex-col gap-2 w-full'}>
         <ProductListHeader title={'내 근처 도서목록'} keyword={keyword}>
           {data?.pages[0].productList.length !== 0 ? (
             <ProductList pageList={data?.pages} />
           ) : (
-            <div className={'ml-[10px]'}>결과가 없습니다.</div>
+            <ProductListEmpty />
           )}
         </ProductListHeader>
       </div>

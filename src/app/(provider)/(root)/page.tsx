@@ -1,48 +1,85 @@
 'use client';
+import { getAllPostList } from '@/api/mainApi';
 import PostCard from '@/components/common/PostCard';
 import PostList from '@/components/common/PostList';
-import { supabase } from '@/contexts/supabase.context';
+import EmptyState from '@/components/EmptyState';
 import { Posts } from '@/types/Post.type';
+import { useUserStore } from '@/zustand/userStore';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import 'swiper/css';
-import { Pagination } from 'swiper/modules';
+import 'swiper/css/navigation';
+import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 function HomePage() {
-  const [allPosts, setAllPosts] = useState<Posts[]>();
+  const [locatedPosts, setLocatedPosts] = useState<Posts[] | undefined>();
 
+  const { address } = useUserStore((state) => ({
+    address: state.address
+  }));
+
+  const { data: allPosts, isPending } = useQuery({
+    queryKey: [
+      'mainList',
+      {
+        keyword: `%%`,
+        requestAddress: `%%`,
+        requestLimit: 1000000
+      }
+    ],
+    queryFn: getAllPostList
+  });
+
+  console.log(allPosts);
   useEffect(() => {
-    (async () => {
-      const { data: posts, error } = await supabase.from('products').select(`*, product_images(image_url)`);
-      if (error) return console.log(error);
-      console.log(posts);
-      setAllPosts(posts as Posts[]);
-    })();
-  }, []);
+    const located = allPosts?.filter((post) => {
+      if (!address) return false;
+      const postAdd = post.address.split(' ');
+      const userAdd = address?.split(' ');
+      const postAddress = `${postAdd[0]} ${postAdd[1]}`;
+      const userAddress = `${userAdd[0]} ${userAdd[1]}`;
+      return postAddress === userAddress;
+    });
+    setLocatedPosts(located);
+  }, [allPosts]);
 
+  if (isPending) return <p className="flex justify-center items-center text-2xl h-screen">Loading...</p>;
   return (
     <div className="flex flex-col items-center max-w-[1024px] mx-auto my-10">
-      <PostList title="전체도서목록 ">
-        <Swiper className="flex flex-row w-full" modules={[Pagination]} slidesPerView={4} pagination={true}>
-          {allPosts?.map((post) => {
+      <PostList title="전체도서목록">
+        <Swiper modules={[Navigation]} slidesPerView={4} navigation>
+          {allPosts?.map((post, index) => {
+            if (index > 9) return false;
+            console.log(post);
             return (
-              <SwiperSlide key={post.id} className="flex flex-row">
+              <SwiperSlide key={post.id}>
                 <PostCard post={post} />
               </SwiperSlide>
             );
           })}
         </Swiper>
       </PostList>
-      <PostList title="내 근처 도서 ">
-        <Swiper className="flex flex-row w-full" modules={[Pagination]} slidesPerView={4} pagination={true}>
-          {allPosts?.map((post) => {
-            return (
-              <SwiperSlide key={post.id} className="flex flex-row">
-                <PostCard post={post} />
-              </SwiperSlide>
-            );
-          })}
-        </Swiper>
+
+      <PostList title="내 근처 도서">
+        {address ? (
+          locatedPosts && (
+            <Swiper className="w-full" modules={[Navigation]} slidesPerView={4} navigation>
+              {locatedPosts.map((post, index) => {
+                if (index > 9) return false;
+                return (
+                  <SwiperSlide key={post.id}>
+                    <PostCard post={post} />
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
+          )
+        ) : (
+          <div className="flex w-full h-fit justify-center items-center">
+            <EmptyState empty="회원 정보가" />
+          </div>
+        )}
       </PostList>
     </div>
   );

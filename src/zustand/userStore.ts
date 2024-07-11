@@ -8,6 +8,7 @@ type UserState = {
   profile_url: string | null;
   address: string | null;
   setUser: (id: string, email: string, nickname: string, profile_url: string, address: string) => void;
+  clearUser: () => void;
 };
 
 export const useUserStore = create<UserState>()(
@@ -19,7 +20,8 @@ export const useUserStore = create<UserState>()(
         nickname: null,
         profile_url: null,
         address: null,
-        setUser: (id, email, nickname, profile_url, address) => set({ id, email, nickname, profile_url, address })
+        setUser: (id, email, nickname, profile_url, address) => set({ id, email, nickname, profile_url, address }),
+        clearUser: () => set({ id: null, email: null, nickname: null, profile_url: null, address: null })
       }),
       {
         name: 'user-storage' // key 이름
