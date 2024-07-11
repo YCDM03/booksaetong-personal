@@ -21,7 +21,7 @@ function PostCard({ post }: PostCardProps) {
         <div className="relative aspect-square my-3">
           <Image src={img_url} alt="판매글 대표이미지" fill className="object-cover rounded-lg border" />
         </div>
-        <h6 className="text-md overflow-hidden text-ellipsis">{title}</h6>
+        <h6 className="text-md overflow-hidden text-ellipsis whitespace-nowrap">{title}</h6>
         <p className="text-sm font-semibold">{formatPrice(price)}원</p>
         <p className="text-gray-600 text-xs">{address}</p>
       </div>
