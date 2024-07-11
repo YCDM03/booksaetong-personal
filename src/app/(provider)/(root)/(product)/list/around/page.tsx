@@ -7,7 +7,6 @@ import { getGroundProductList } from '@/api/listApi';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
 import { useUserStore } from '@/zustand/userStore';
 import ProductListHeader from '@/components/list/ProductListHeader';
-import EmptyState from '@/components/EmptyState';
 import ProductListEmpty from '@/components/list/ProductListEmpty';
 
 function ListOfAroundPage() {
@@ -63,7 +62,7 @@ function ListOfAroundPage() {
           {data?.pages[0].productList.length !== 0 ? (
             <ProductList pageList={data?.pages} />
           ) : (
-            <ProductListEmpty/>
+            <ProductListEmpty />
           )}
         </ProductListHeader>
       </div>

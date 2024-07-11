@@ -11,13 +11,13 @@ export const GET = async (request: Request) => {
     const requestOffset = parseInt(searchParams.get('requestOffset') as string, 10) as number;
     const requestAddress = searchParams.get('requestAddress') as string;
 
-    type GetFilteredProductListArgs = Database['public']['Functions']['FilteredProductListOfAround']["args"];
+    type GetFilteredProductListArgs = Database['public']['Functions']['FilteredProductListOfAround']['args'];
 
     const args: GetFilteredProductListArgs = {
       keyword,
       request_limit: requestLimit,
       request_address: requestAddress,
-      request_offset: requestOffset,
+      request_offset: requestOffset
     };
 
     const { data, error } = await supabase.rpc('get_filtered_product_list_of_around', args);
@@ -26,4 +26,4 @@ export const GET = async (request: Request) => {
   } catch (error) {
     return NextResponse.json([]);
   }
-}
+};
