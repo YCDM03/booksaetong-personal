@@ -391,7 +391,7 @@
 
 "@supabase/ssr@^0.4.0":
   version "0.4.0"
-  resolved "https://registry.npmjs.org/@supabase/ssr/-/ssr-0.4.0.tgz"
+  resolved "https://registry.yarnpkg.com/@supabase/ssr/-/ssr-0.4.0.tgz#3ecb607e5346e6e09d50c106c2335db0e97903dd"
   integrity sha512-6WS3NUvHDhCPAFN2kJ79AQDO8+M9fJ7y2fYpxgZqIuJEpnnGsHDNnB5Xnv8CiaJIuRU+0pKboy62RVZBMfZ0Lg==
   dependencies:
     cookie "^0.6.0"
@@ -2995,6 +2995,11 @@ react-dom@^18:
     loose-envify "^1.1.0"
     scheduler "^0.23.2"
 
+react-icons@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-5.2.1.tgz#28c2040917b2a2eda639b0f797bff1888e018e4a"
+  integrity sha512-zdbW5GstTzXaVKvGSyTaBalt7HSfuK5ovrzlpyiWHAFXndXTdd/1hdDHI4xBM1Mn7YriT6aqESucFl9kEXzrdw==
+
 react-is@^16.13.1:
   version "16.13.1"
   resolved "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
@@ -3007,7 +3012,7 @@ react-is@^18.2.0:
 
 react-kakao-maps-sdk@^1.1.27:
   version "1.1.27"
-  resolved "https://registry.npmjs.org/react-kakao-maps-sdk/-/react-kakao-maps-sdk-1.1.27.tgz"
+  resolved "https://registry.yarnpkg.com/react-kakao-maps-sdk/-/react-kakao-maps-sdk-1.1.27.tgz#577c5b53b76459a85fd3cc486ae0e799ec073b85"
   integrity sha512-1EwYkYsjTDRFqysKStDasFMrFTXcLx2AyRlqMoWD7ONWhRqpjx9M874hkhEEHrnypP2eSIhhDLe0EiSKp3bd2Q==
   dependencies:
     "@babel/runtime" "^7.22.15"
