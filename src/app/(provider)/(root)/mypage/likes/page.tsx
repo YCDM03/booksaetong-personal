@@ -1,5 +1,6 @@
 'use client';
 import { myLikePost } from '@/api/myPageApi';
+import Loading from '@/components/common/Loading/LoadingCenter';
 import PostCard from '@/components/common/PostCard';
 import Page from '@/components/MyPage/Page';
 import { useUserStore } from '@/zustand/userStore';
@@ -10,12 +11,12 @@ function LikePage() {
     id: state.id
   }));
 
-  const { data: likes } = useQuery({
+  const { data: likes, isPending } = useQuery({
     queryKey: ['mylikeList', id],
     queryFn: () => myLikePost(id)
   });
 
-  console.log(likes);
+  if (isPending) return <Loading />;
 
   return (
     <Page title="관심목록">

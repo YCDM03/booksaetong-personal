@@ -1,5 +1,6 @@
 'use client';
 import { getAllPostList } from '@/api/mainApi';
+import Loading from '@/components/common/Loading/LoadingCenter';
 import PostCard from '@/components/common/PostCard';
 import EmptyState from '@/components/EmptyState';
 import Page from '@/components/MyPage/Page';
@@ -27,6 +28,7 @@ function MySellPage() {
     return post.user_id === id;
   });
 
+  if (isPending) return <Loading />;
   return (
     <Page title="판매내역">
       {myPosts ? (

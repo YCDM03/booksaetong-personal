@@ -1,5 +1,6 @@
 'use client';
 import { getAllPostList } from '@/api/mainApi';
+import Loading from '@/components/common/Loading/LoadingCenter';
 import PostCard from '@/components/common/PostCard';
 import PostList from '@/components/common/PostList';
 import EmptyState from '@/components/EmptyState';
@@ -44,7 +45,7 @@ function HomePage() {
     setLocatedPosts(located);
   }, [allPosts]);
 
-  if (isPending) return <p className="flex justify-center items-center text-2xl h-screen">Loading...</p>;
+  if (isPending) return <Loading />;
   return (
     <div className="flex flex-col items-center max-w-[1024px] mx-auto my-10">
       <PostList title="전체도서목록">
