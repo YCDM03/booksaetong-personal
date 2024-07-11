@@ -12,7 +12,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 function HomePage() {
   const [allPosts, setAllPosts] = useState<Posts[]>();
-  const [locatedPosts, setLocatedPosts] = useState<Posts[]>();
+  const [locatedPosts, setLocatedPosts] = useState<Posts[] | undefined>();
 
   const { address } = useUserStore((state) => ({
     address: state.address
@@ -28,10 +28,11 @@ function HomePage() {
 
   useEffect(() => {
     const located = allPosts?.filter((post) => {
-      const postAddress = `${post.address.split(' ')[0]} ${post.address.split(' ')[1]}`;
       if (!address) return false;
-      const userAddress = `${address?.split(' ')[0]} ${address?.split(' ')[1]}`;
-      console.log(address);
+      const postAdd = post.address.split(' ');
+      const userAdd = address?.split(' ');
+      const postAddress = `${postAdd[0]} ${postAdd[1]}`;
+      const userAddress = `${userAdd[0]} ${userAdd[1]}`;
       return postAddress === userAddress;
     });
     setLocatedPosts(located);
@@ -50,19 +51,33 @@ function HomePage() {
           })}
         </Swiper>
       </PostList>
-
+      {/* 
       <PostList title="내 근처 도서">
         {address ? (
-          <Swiper className="custom-swiper-container" modules={[Navigation]} slidesPerView={4} navigation>
+          locatedPosts && (
+            <Swiper className="custom-swiper-container" modules={[Navigation]} slidesPerView={4} navigation>
+              {locatedPosts.map((post) => {
+                return (
+                  <SwiperSlide key={post.id}>
+                    <PostCard post={post} />
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
+          )
+        ) : (
+          <div className="flex w-full h-fit justify-center items-center">
+            <EmptyState empty="회원 정보가" />
+          </div>
+        )}
+      </PostList> */}
+      <PostList title="내 근처 도서">
+        {address ? (
+          <div className="flex">
             {locatedPosts?.map((post) => {
-              console.log(post);
-              return (
-                <SwiperSlide key={post.id}>
-                  <PostCard post={post} />
-                </SwiperSlide>
-              );
+              return <PostCard key={post.id} post={post} />;
             })}
-          </Swiper>
+          </div>
         ) : (
           <div className="flex w-full h-fit justify-center items-center">
             <EmptyState empty="회원 정보가" />
