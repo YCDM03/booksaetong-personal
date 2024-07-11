@@ -27,6 +27,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
 
   useEffect(() => {
     const kakaoScript = document.createElement('script');
+    document.head.appendChild(kakaoScript);
     kakaoScript.src = KAKAO_SDK_URL;
     kakaoScript.async = true;
     kakaoScript.onload = () => {
