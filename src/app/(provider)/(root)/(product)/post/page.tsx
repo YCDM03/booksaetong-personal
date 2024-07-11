@@ -184,14 +184,25 @@ const PostPage: NextPage = () => {
             <label htmlFor="category" className="text-sm text-gray-700">
               카테고리
             </label>
-            <input
-              type="text"
+            <select
               id="category"
               className="border border-gray-300 px-2 py-1"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-            />
+            >
+              <option value="">카테고리를 선택하세요</option>
+              <option value="경제경영">경제경영</option>
+              <option value="만화">만화</option>
+              <option value="사회과학">사회과학</option>
+              <option value="소설/시/희곡">소설/시/희곡</option>
+              <option value="어린이">어린이</option>
+              <option value="에세이">에세이</option>
+              <option value="유아">유아</option>
+              <option value="인문학">인문학</option>
+              <option value="기타">기타</option>
+            </select>
           </div>
+
           <div className="flex flex-col space-y-1">
             <label htmlFor="price" className="text-sm text-gray-700">
               금액
