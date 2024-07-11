@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { HeartIcon } from '@heroicons/react/outline';
 import { supabase } from '@/contexts/supabase.context';
 import { Product } from '@/app/(provider)/(root)/(product)/detail/[id]/page';
+import { useUserStore } from '@/zustand/userStore';
 
 interface ProductCardProps {
   products: Product[];
@@ -14,15 +15,18 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, userData }) => {
   const [liked, setLiked] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const { id: loggedInUserId } = useUserStore((state) => ({
+    id: state.id
+  }));
 
   useEffect(() => {
     const fetchLikedStatus = async () => {
-      if (userData.length > 0 && products.length > 0) {
+      if (loggedInUserId && products.length > 0) {
         const { data, error } = await supabase
           .from('product_likes')
           .select('id')
-          .eq('user_id', userData[0].id)
+          .eq('user_id', loggedInUserId)
           .eq('product_id', products[0].id)
           .single();
 
@@ -35,7 +39,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
     };
 
     fetchLikedStatus();
-  }, [userData, products]);
+  }, [loggedInUserId, products]);
 
   useEffect(() => {
     const fetchUserEmail = async () => {
@@ -53,52 +57,36 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
     fetchUserEmail();
   }, [products]);
 
-  useEffect(() => {
-    const checkLoggedIn = async () => {
-      try {
-        const user = supabase.auth.session();
-
-        // supabase.auth.session()에서 가져온 user 객체가 null이 아닌지 확인
-        if (user !== null) {
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        console.error('Error checking user session:', error);
-      }
-    };
-
-    checkLoggedIn();
-  }, []); // 빈 배열을 넣어 한 번만 실행되도록 설정
-
   const toggleLike = async (productId: string) => {
-    if (!isLoggedIn) {
-      console.log('User is not logged in.');
+    if (!loggedInUserId) {
+      alert('로그인이 필요합니다.');
       return;
     }
+
+    setLiked((prevLiked) => !prevLiked);
 
     if (liked) {
       const { error } = await supabase
         .from('product_likes')
         .delete()
-        .eq('user_id', userData[0].id)
+        .eq('user_id', loggedInUserId)
         .eq('product_id', productId);
 
       if (error) {
         console.error('Error deleting like:', error);
-      } else {
-        setLiked(false);
       }
     } else {
-      const { error } = await supabase.from('product_likes').insert({ user_id: userData[0].id, product_id: productId });
+      const { error } = await supabase.from('product_likes').insert({ user_id: loggedInUserId, product_id: productId });
 
       if (error) {
         console.error('Error inserting like:', error);
-      } else {
-        setLiked(true);
       }
     }
+  };
+
+  const formatPrice = (price: number): string => {
+    const formatted = new Intl.NumberFormat('en-US').format(price);
+    return `${formatted}원`;
   };
 
   return (
@@ -127,8 +115,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
                   </div>
                 </div>
                 <p className="text-[#6A7280] mt-4">{products[0].address}</p>
-                <p className="my-4 text-lg font-medium">{products[0].price}원</p>
-                {/* <p>{products[0].contents}</p> */}
+                <p className="my-4 text-lg font-medium">{formatPrice(products[0].price)}</p>
               </div>
               <div>
                 <div className="flex items-center space-x-2">
@@ -147,7 +134,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
                     <p className="text-[#6A7280] text-sm">{products[0].address}</p>
                   </div>
                 </div>
-                {isLoggedIn && products[0].user_id === userData[0]?.id && (
+                {loggedInUserId === products[0].user_id && (
                   <Link href={`/editpage/${products[0].id}`}>
                     <button className="mt-6 bg-main text-white font-medium w-40 py-2.5 px-4 rounded-md hover:bg-hover">
                       글 수정하기

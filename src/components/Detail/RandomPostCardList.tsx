@@ -3,30 +3,32 @@ import { supabase } from '@/contexts/supabase.context';
 import PostCard from '../common/PostCard';
 import { Posts } from '@/types/Post.type';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const RandomPostCardList = () => {
   const [allPosts, setAllPosts] = useState<Posts[]>([]);
 
   useEffect(() => {
-    fetchAllBooks();
+    fetchAllPosts();
   }, []);
 
-  const fetchAllBooks = async (): Promise<void> => {
+  const fetchAllPosts = async (): Promise<void> => {
     try {
-      const { data: allPosts, error: allPostsError } = await supabase
+      const { data: allPostsData, error: allPostsError } = await supabase
         .from('products')
         .select('*, product_images(image_url)');
 
       if (allPostsError) {
-        console.error('All products fetching error:', allPostsError);
+        console.error('모든 상품 데이터 불러오기 오류:', allPostsError);
         return;
       }
 
-      if (allPosts) {
-        shufflePosts(allPosts);
+      if (allPostsData) {
+        shufflePosts(allPostsData);
       }
     } catch (error) {
-      console.error('Fetch All books error:', error);
+      console.error('모든 상품 데이터 불러오기 오류:', error);
     }
   };
 
@@ -37,7 +39,12 @@ const RandomPostCardList = () => {
   };
 
   const handleShuffle = () => {
-    fetchAllBooks();
+    fetchAllPosts();
+  };
+
+  const formatPrice = (price: number): string => {
+    const formatted = new Intl.NumberFormat('en-US').format(price);
+    return formatted;
   };
 
   return (
@@ -46,14 +53,28 @@ const RandomPostCardList = () => {
         <div className="flex">
           <h2 className="text-2xl font-semibold my-5">랜덤 추천</h2>
           <button className="text-xs text-gray-400 ml-7 cursor-pointer hover:brightness-90" onClick={handleShuffle}>
-            View More {'>'}
+            더 보기 {'>'}
           </button>
         </div>
         <div className="flex flex-row w-full h-[350px]">
           <Swiper className="custom-swiper-container" slidesPerView={4}>
             {allPosts.map((post) => (
               <SwiperSlide key={post.id}>
-                <PostCard post={post} />
+                <Link href={`/detail/${post.id}`}>
+                  <div className="flex flex-col w-[220px] h-[350px] gap-y-2 cursor-pointer mx-5 px-3">
+                    <div className="relative aspect-square my-3">
+                      <Image
+                        src={post.product_images?.[0]?.image_url || '/placeholder.jpg'}
+                        alt="판매글 대표이미지"
+                        fill
+                        className="object-cover rounded-lg border"
+                      />
+                    </div>
+                    <h6 className="text-md overflow-hidden text-ellipsis">{post.title}</h6>
+                    <p className="text-sm font-semibold">{formatPrice(post.price)}원</p>
+                    <p className="text-gray-600 text-xs">{post.address}</p>
+                  </div>
+                </Link>
               </SwiperSlide>
             ))}
           </Swiper>
