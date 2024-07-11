@@ -65,22 +65,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
 
     setLiked((prevLiked) => !prevLiked);
 
-    if (liked) {
-      const { error } = await supabase
-        .from('product_likes')
-        .delete()
-        .eq('user_id', loggedInUserId)
-        .eq('product_id', productId);
-
-      if (error) {
-        console.error('Error deleting like:', error);
+    try {
+      if (liked) {
+        await supabase.from('product_likes').delete().eq('user_id', loggedInUserId).eq('product_id', productId);
+      } else {
+        await supabase.from('product_likes').insert({ user_id: loggedInUserId, product_id: productId });
       }
-    } else {
-      const { error } = await supabase.from('product_likes').insert({ user_id: loggedInUserId, product_id: productId });
-
-      if (error) {
-        console.error('Error inserting like:', error);
-      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
     }
   };
 
