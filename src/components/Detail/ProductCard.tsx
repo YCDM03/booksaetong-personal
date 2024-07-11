@@ -1,23 +1,9 @@
-'use client';
-
 import React, { useEffect, useState } from 'react';
 import SwiperSlider from '../common/Swiper/Slider';
 import Link from 'next/link';
 import { HeartIcon } from '@heroicons/react/outline';
 import { supabase } from '@/contexts/supabase.context';
-
-export interface Product {
-  id: string;
-  created_at: string;
-  title: string;
-  category: string;
-  price: number;
-  contents: string;
-  latitude: number;
-  longitude: number;
-  user_id: string;
-  address: string;
-}
+import { Product } from '@/app/(provider)/(root)/(product)/detail/[id]/page';
 
 interface ProductCardProps {
   products: Product[];
@@ -28,6 +14,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, userData }) => {
   const [liked, setLiked] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const userId = JSON.parse(sessionStorage.getItem('logInUser'));
 
   useEffect(() => {
     const fetchLikedStatus = async () => {
@@ -39,7 +27,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
           .eq('product_id', products[0].id)
           .single();
 
-        if (error && error.code !== 'PGRST116') {
+        if (error) {
           console.error('Error fetching like status:', error);
         } else if (data) {
           setLiked(true);
@@ -66,7 +54,32 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
     fetchUserEmail();
   }, [products]);
 
+  // useEffect(() => {
+  //   const checkLoggedIn = async () => {
+  //     try {
+  //       const user = supabase.auth.getSession();
+
+  //       // supabase.auth.user()가 비동기 함수이므로 user 객체가 존재하는지 확인
+  //       if (user_id) {
+  //         setIsLoggedIn(true);
+  //       } else {
+  //         setIsLoggedIn(false);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error checking user session:', error);
+  //     }
+  //   };
+
+  //   checkLoggedIn();
+  // }, []); // 빈 배열을 넣어 한 번만 실행되도록 설정
+
   const toggleLike = async (productId: string) => {
+    if (!isLoggedIn) {
+      // Handle case where user is not logged in
+      console.log('User is not logged in.');
+      return;
+    }
+
     if (liked) {
       const { error } = await supabase
         .from('product_likes')
@@ -119,28 +132,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
                 <p className="my-4 text-lg font-medium">{products[0].price}원</p>
                 {/* <p>{products[0].contents}</p> */}
               </div>
-              <div className="flex items-center space-x-2">
-                {userData.length > 0 && (
-                  <img
-                    src={
-                      userData[0].profile_url ||
-                      'https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/profiles/550e8400-e29b-41d4-a716-446655440000/default_profile.png'
-                    }
-                    alt="유저 프로필 이미지"
-                    className="object-cover w-12 h-12 rounded-full mr-2"
-                  />
-                )}
-                <div>
-                  <p className="mb-1 text-sm">{userEmail}</p>
-                  <p className="text-[#6A7280] text-sm">{products[0].address}</p>
+              <div>
+                <div className="flex items-center space-x-2">
+                  {userData.length > 0 && (
+                    <img
+                      src={
+                        userData[0].profile_url ||
+                        'https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/profiles/550e8400-e29b-41d4-a716-446655440000/default_profile.png'
+                      }
+                      alt="유저 프로필 이미지"
+                      className="object-cover w-12 h-12 rounded-full mr-2"
+                    />
+                  )}
+                  <div>
+                    <p className="mb-1 text-sm">{userEmail}</p>
+                    <p className="text-[#6A7280] text-sm">{products[0].address}</p>
+                  </div>
                 </div>
-                {userData.length > 0 && products.length > 0 && (
+                {isLoggedIn && products[0].user_id === userData[0]?.id && (
                   <Link href={`/editpage/${products[0].id}`}>
-                    <button
-                      className={`mt-2 bg-main text-white w-40 h-10 rounded-md ${
-                        products[0].user_id === userData[0].id ? '' : 'hidden'
-                      }`}
-                    >
+                    <button className="mt-6 bg-main text-white font-medium w-40 py-2.5 px-4 rounded-md hover:bg-hover">
                       글 수정하기
                     </button>
                   </Link>

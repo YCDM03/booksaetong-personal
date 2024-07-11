@@ -2,12 +2,25 @@
 
 import Comments from '@/components/Detail/Comments';
 import Location from '@/components/Detail/Location';
-import ProductCard, { Product } from '@/components/Detail/ProductCard';
+import ProductCard from '@/components/Detail/ProductCard';
 import ProductIntro from '@/components/Detail/ProductIntro';
 import RandomPostCardList from '@/components/Detail/RandomPostCardList';
 import { supabase } from '@/contexts/supabase.context';
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
+
+export interface Product {
+  id: string;
+  created_at: string;
+  title: string;
+  category: string;
+  price: number;
+  contents: string;
+  latitude: number;
+  longitude: number;
+  user_id: string;
+  address: string;
+}
 
 function DetailPage({ params }: { params: { id: string } }) {
   const [products, setProducts] = useState<Product[]>([]);
