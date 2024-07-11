@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Map, MapMarker } from 'react-kakao-maps-sdk';
-import useUserStore from '@/zustand/userStore';
+import { useUserStore } from '@/zustand/userStore';
 import Script from 'next/script';
 
 type MarkerInfo = {
@@ -20,8 +20,10 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
   const [center, setCenter] = useState({ lat: 37.566826, lng: 126.9786567 });
   const [markerPosition, setMarkerPosition] = useState({ lat: 37.566826, lng: 126.9786567 });
   const [infoWindow, setInfoWindow] = useState<kakao.maps.InfoWindow | null>(null);
-  const [markerAddress, setMarkerAddress] = useState<string>(''); // State to store marker address
-  const user = useUserStore((state) => state.user);
+  const [markerAddress, setMarkerAddress] = useState<string>('');
+  const { address } = useUserStore((state) => ({
+    address: state.address
+  }));
 
   useEffect(() => {
     const kakaoScript = document.createElement('script');
@@ -29,9 +31,9 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
     kakaoScript.async = true;
     kakaoScript.onload = () => {
       const ps = new kakao.maps.services.Places();
-      if (!map || !user || !user.address) return;
+      if (!map || !address) return;
 
-      ps.keywordSearch(user.address, (data, status, _pagination) => {
+      ps.keywordSearch(address, (data, status, _pagination) => {
         if (status === kakao.maps.services.Status.OK) {
           const bounds = new kakao.maps.LatLngBounds();
           data.forEach((place) => bounds.extend(new kakao.maps.LatLng(Number(place.y), Number(place.x))));
@@ -58,7 +60,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
     return () => {
       document.head.removeChild(kakaoScript);
     };
-  }, [map, user]);
+  }, [map, address]);
 
   useEffect(() => {
     if (!map) return;
@@ -120,7 +122,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
   return (
     <>
       <Script src={KAKAO_SDK_URL} strategy="beforeInteractive" />
-      <Map center={center} style={{ width: '534px', height: '253px' }} level={3} onCreate={(map) => setMap(map)}>
+      <Map center={center} style={{ width: '534px', height: '253px' }} level={3} onCreate={setMap}>
         {map && (
           <MapMarker position={markerPosition} draggable={true} onDragEnd={(target) => handleMarkerDragEnd(target)} />
         )}
