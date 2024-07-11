@@ -24,20 +24,21 @@ function LoginPage() {
       method: 'POST',
       body: formData
     });
-    const { data, errorMsg } = await response.json();
+    const { users, errorMsg } = await response.json();
 
     if (errorMsg === 'Invalid login credentials') {
       return alert('올바른 유저 정보를 입력해주세요');
     } else if (response.status === 200) {
       alert('로그인 성공!');
-      const { address, email, nickname, sub }: { [key: string]: string } = data?.user.user_metadata;
-      localStorage.setItem('user', JSON.stringify({ address, email, nickname, sub }));
-      login({ address, email, nickname, sub });
+      const { id, nickname, address, email, profile_url }: { [key: string]: string } = users[0];
+
+      localStorage.setItem('user', JSON.stringify({ id, nickname, address, email, profile_url }));
+      login({ id, nickname, address, email, profile_url });
       router.push('/');
     }
   };
   return (
-    <div className="w-screen h-screen flex flex-col justify-center items-center content-center border">
+    <div className="max-w-screen h-screen flex flex-col justify-center items-center content-center">
       <h2 className="font-bold text-3xl">로그인</h2>
       <form
         className="flex flex-col w-96 h-96 justify-center items-center content-center gap-10"

@@ -17,8 +17,8 @@ function ProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      if (userData?.sub) {
-        setUserId(userData.sub);
+      if (userData?.id) {
+        setUserId(userData.id);
         setNickname(userData.nickname);
         setAddress(userData.address);
         setSelectedImage(userData.profile_url);

@@ -1,5 +1,4 @@
 'use client';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SelectArea from '@/components/Auth/SignupPage/SelectArea';
 
@@ -41,7 +40,7 @@ function SignUpPage() {
   };
 
   return (
-    <div className="w-screen h-screen pb-40 flex flex-col justify-center items-center content-center border">
+    <div className="max-w-screen h-screen pb-40 flex flex-col justify-center items-center content-center">
       <h2 className="font-bold text-3xl my-20">회원가입</h2>
       <form className="flex flex-col w-96  justify-center items-center content-center gap-10" onSubmit={handleSubmit}>
         <div className="flex flex-col">

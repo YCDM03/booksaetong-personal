@@ -74,8 +74,8 @@ const PostPage: NextPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[80vh] relative">
-      <div className="flex-grow relative border-2 border-gray-300 mx-80 mt-10 mb-2 rounded-lg flex flex-col">
+    <div className="flex flex-col h-[800px]">
+      <div className="flex-grow relative border-2 border-gray-300 mx-20 mt-10 mb-2 rounded-lg flex flex-col">
         <div className="absolute top-4 left-4 z-10">
           <p className="text-xl font-bold text-gray-800">판매등록하기</p>
         </div>
