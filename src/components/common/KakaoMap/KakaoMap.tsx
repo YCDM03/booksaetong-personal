@@ -27,7 +27,6 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
 
   useEffect(() => {
     const kakaoScript = document.createElement('script');
-    document.head.appendChild(kakaoScript);
     kakaoScript.src = KAKAO_SDK_URL;
     kakaoScript.async = true;
     kakaoScript.onload = () => {
@@ -68,7 +67,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
 
     const infoWindow = new kakao.maps.InfoWindow({
       content: '',
-      removable: false // Disable close button
+      removable: false
     });
 
     setInfoWindow(infoWindow);
@@ -111,10 +110,8 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
       lng: position.getLng()
     });
 
-    // Update marker address
     geocodeAndSetMarkerAddress(position.getLat(), position.getLng());
 
-    // Pass marker position and address to parent component
     onMarkerAddressChange({ lat: position.getLat(), lng: position.getLng(), address: markerAddress });
   };
 
