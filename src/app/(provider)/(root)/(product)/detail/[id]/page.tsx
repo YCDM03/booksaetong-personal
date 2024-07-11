@@ -25,6 +25,9 @@ export interface Product {
 export interface User {
   id: string;
   profile_url: string;
+  nickname: string;
+  address: string;
+  email: string;
 }
 
 function DetailPage({ params }: { params: { id: string } }) {
@@ -35,18 +38,14 @@ function DetailPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      // Fetch product data
-      const { data: productData, error: productError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', params.id);
+      const { data: productData, error } = await supabase.from('products').select('*').eq('id', params.id);
 
-      if (productError) {
-        console.error('Product data fetching error:', productError);
+      if (error) {
+        console.error('product 데이터 불러오기 오류:', error);
         return;
       }
 
-      // Fetch image data for products
+      // 이미지 불러오기
       const productIds = productData.map((product) => product.id);
       const { data: imageData, error: imageError } = await supabase
         .from('product_images')
@@ -54,11 +53,11 @@ function DetailPage({ params }: { params: { id: string } }) {
         .in('product_id', productIds);
 
       if (imageError) {
-        console.error('Image data fetching error:', imageError);
+        console.error('이미지 불러오기 오류:', error);
         return;
       }
 
-      // Group images by product_id
+      // product_id 로 이미지 그룹화
       const groupedImages: { [key: string]: string[] } = {};
       imageData.forEach((image) => {
         if (!groupedImages[image.product_id]) {
@@ -70,11 +69,11 @@ function DetailPage({ params }: { params: { id: string } }) {
       setProducts(productData || []);
       setProductImages(groupedImages);
 
-      // Fetch user data
+      // user정보 불러오기
       const { data: userData, error: userError } = await supabase.from('users').select('*');
 
       if (userError) {
-        console.error('User data fetching error:', userError);
+        console.error('유저정보 오류:', userError);
         return;
       }
 
@@ -94,13 +93,15 @@ function DetailPage({ params }: { params: { id: string } }) {
     <div className="flex justify-center">
       <div className="container mx-auto w-11/12 lg:w-[1440px] flex flex-col items-center">
         <ProductCard products={products} productImages={productImages} userData={userData} />
-        <ProductIntro productId={params.id} />
         {products.length > 0 && (
-          <Location
-            latitude={products[0]?.latitude || 0}
-            longitude={products[0]?.longitude || 0}
-            address={products[0]?.address || ''}
-          />
+          <>
+            <ProductIntro contents={products[0].contents} />
+            <Location
+              latitude={products[0]?.latitude || 0}
+              longitude={products[0]?.longitude || 0}
+              address={products[0]?.address || ''}
+            />
+          </>
         )}
         {isKakaoMapLoaded && (
           <Script

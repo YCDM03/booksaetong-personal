@@ -12,12 +12,13 @@ interface Comment {
 
 interface User {
   id: string;
-  profile_url: string | null; // 프로필 URL이 null일 수 있음을 표시
+  profile_url: string | null;
+  email: string;
 }
 
 interface CommentsProps {
   productId: string;
-  userData: User[]; // User 타입의 배열로 userData를 props로 받음
+  userData: User[];
 }
 
 const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
@@ -43,7 +44,7 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
 
         setComments(commentsData || []);
       } catch (error) {
-        console.error('Error fetching comments:', error);
+        console.error('댓글 불러오기 오류:', error);
       }
     };
 
@@ -113,6 +114,16 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
       : `https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/default_profile.png`;
   };
 
+  const getUserEmail = (userId: string): string => {
+    const user = userData.find((u) => u.id === userId);
+
+    if (user) {
+      return user.email;
+    } else {
+      return '알 수 없음';
+    }
+  };
+
   return (
     <div className="w-full lg:w-[1000px] py-8">
       <h6 className="text-2xl font-bold mb-2">댓글</h6>
@@ -144,8 +155,8 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
-            <div className="flex-1">
-              <p className="font-bold">{comment.user_id}</p>
+            <div className="flex-2">
+              <p className="font-semibold">{getUserEmail(comment.user_id)}</p>
               <p className="text-gray-800">{comment.contents}</p>
               {loggedInUserId === comment.user_id && (
                 <div className="mt-2">
