@@ -10,7 +10,9 @@ function MySellPage() {
     // setSellData(판매 내역 데이터);
   }, []);
 
-  return <Page title="판매내역">{sellData.length === 0 ? <EmptyState /> : <div>MySellPage</div>}</Page>;
+  return (
+    <Page title="판매내역">{sellData.length === 0 ? <EmptyState empty="판매내역이" /> : <div>MySellPage</div>}</Page>
+  );
 }
 
 export default MySellPage;
