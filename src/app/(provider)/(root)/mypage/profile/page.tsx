@@ -24,57 +24,23 @@ function ProfilePage() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!id) {
-        try {
-          const {
-            data: { session },
-            error
-          } = await supabase.auth.getSession();
-          if (error) {
-            console.error('Error fetching session:', error);
-            return;
-          }
-          if (!session) {
-            console.error('No session found');
-            return;
-          }
+      const savedArea = localStorage.getItem('localArea');
+      const savedSubArea = localStorage.getItem('localSubArea');
 
-          const user = session.user;
-          const { data, error: userError } = await supabase
-            .from('users')
-            .select('id, email, nickname, address, profile_url')
-            .eq('id', user.id)
-            .single();
-          if (userError) {
-            console.error('Error fetching user data:', userError);
-            return;
-          }
-          if (data) {
-            setUser(data.id, data.email, data.nickname, data.profile_url, data.address);
-            setLocalNickname(data.nickname);
-            // 주소를 지역과 시/군/구로 분리
-            const [area, subArea] = (data.address || '').split(' ');
-            setLocalArea(area || '');
-            setLocalSubArea(subArea || '');
-            setSelectedImage(data.profile_url);
-          }
-        } catch (fetchError) {
-          console.error('Unexpected error fetching user data:', fetchError);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
+      if (id) {
         setLocalNickname(nickname || '');
-        // 주소를 지역과 시/군/구로 분리
         const [area, subArea] = (address || '').split(' ');
-        setLocalArea(area || '');
-        setLocalSubArea(subArea || '');
+        setLocalArea(area || savedArea || '');
+        setLocalSubArea(subArea || savedSubArea || '');
         setSelectedImage(profile_url);
-        setIsLoading(false);
+      } else {
+        if (savedArea) setLocalArea(savedArea);
+        if (savedSubArea) setLocalSubArea(savedSubArea);
       }
+      setIsLoading(false);
     };
     fetchUserData();
-  }, [id, nickname, address, profile_url, setUser]);
+  }, [id, nickname, address, profile_url]);
 
   const openModal = () => {
     setModalOpen(true);
@@ -84,12 +50,24 @@ function ProfilePage() {
   };
 
   const handleImageUpload = async (file: File) => {
-    setSelectedFile(file);
+    if (!id) return;
 
+    // 새로운 이미지 업로드 경로 설정
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-    const filePath = `profiles/${id}/${Date.now()}_${cleanFileName}`;
+    const filePath = `profiles/${id}/${cleanFileName}`;
 
-    const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
+    // 기존 이미지 삭제
+    if (profile_url) {
+      const oldFileName = profile_url.split('/').pop();
+      if (oldFileName) {
+        await supabase.storage.from('avatars').remove([`profiles/${id}/${oldFileName}`]);
+      }
+    }
+
+    // 새로운 이미지 업로드
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
+      upsert: true
+    });
     if (uploadError) {
       console.error('업로드에러 :', uploadError);
       setNotification('업로드 중 에러가 발생했습니다.');
@@ -136,6 +114,8 @@ function ProfilePage() {
         setNotification('프로필 정보가 변경되었습니다.');
       }
     }
+    localStorage.setItem('localArea', localArea);
+    localStorage.setItem('localSubArea', localSubArea);
   };
 
   const closeNotification = () => {
