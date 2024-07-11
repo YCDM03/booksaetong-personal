@@ -8,6 +8,8 @@ import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
 import { useUserStore } from '@/zustand/userStore';
 import ProductListHeader from '@/components/list/ProductListHeader';
 import ProductListEmpty from '@/components/list/ProductListEmpty';
+import { LoadingTop } from '@/components/common/Loading';
+import { useRouter } from 'next/navigation';
 
 function ListOfAroundPage() {
   const { userAddress } = useUserStore((state) => ({
@@ -45,7 +47,12 @@ function ListOfAroundPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [fetchNextPage, hasNextPage]);
 
+  const router = useRouter();
   useEffect(() => {
+    if (!userAddress){
+      router.push("/login")
+    }
+
     setAddress(userAddress);
   }, [userAddress]);
 
@@ -58,11 +65,16 @@ function ListOfAroundPage() {
   return (
     <div className={'flex mt-[100px] w-full flex-col '}>
         <ProductListHeader title={'내 근처 도서목록'} keyword={keyword}>
+          <div className={"ml-3 text-xs text-gray-500 "}>{address}</div>
           {data?.pages[0].productList.length !== 0 ? (
             <ProductList pageList={data?.pages} />
           ) : (
             <ProductListEmpty />
           )}
+          {isFetchingNextPage &&
+            <div className={'flex justify-start w-[1000px] mt-[100px]'}>
+              <LoadingTop></LoadingTop>
+            </div>}
         </ProductListHeader>
     </div>
   );
