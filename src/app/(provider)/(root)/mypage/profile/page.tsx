@@ -5,6 +5,10 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/contexts/supabase.context';
 import Image from 'next/image';
 import { useUserStore } from '@/zustand/userStore';
+import { LoadingCenter } from '@/components/common/Loading';
+import { Notification } from '@/components/common/Alert';
+import { useRouter } from 'next/navigation';
+import { ImageUploadModal } from '@/components/common/Modal';
 
 function ProfilePage() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -12,9 +16,10 @@ function ProfilePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [notification, setNotification] = useState('');
   const { id, nickname, address, profile_url, setUser } = useUserStore();
-  console.log(useUserStore());
+  const [isLoading, setIsLoading] = useState(true);
   const [localNickname, setLocalNickname] = useState(nickname || '');
   const [localAddress, setLocalAddress] = useState(address || '');
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -30,6 +35,7 @@ function ProfilePage() {
           }
           if (!session) {
             console.error('No session found:', error);
+            // router.push('/login'); // 새로고침후 테스트해봐야됨
             return;
           }
           const user = session.user;
@@ -50,11 +56,14 @@ function ProfilePage() {
           }
         } catch (fetchError) {
           console.error('Unexpected error fetching user data:', fetchError);
+        } finally {
+          setIsLoading(false);
         }
       } else {
         setLocalNickname(nickname || '');
         setLocalAddress(address || '');
         setSelectedImage(profile_url);
+        setIsLoading(false);
       }
     };
     fetchUserData();
@@ -65,7 +74,6 @@ function ProfilePage() {
   };
   const closeModal = () => {
     setModalOpen(false);
-    setSelectedImage(null);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,7 +118,6 @@ function ProfilePage() {
 
     // Zustand 스토어 업데이트
     setUser(id, useUserStore.getState().email!, localNickname, publicURL, localAddress);
-
     setNotification('프로필 이미지가 변경되었습니다.');
     setModalOpen(false);
   };
@@ -131,14 +138,13 @@ function ProfilePage() {
     }
   };
 
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => {
-        setNotification('');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [notification]);
+  const closeNotification = () => {
+    setNotification('');
+  };
+
+  if (isLoading) {
+    return <LoadingCenter />;
+  }
 
   return (
     <Page title="프로필 수정">
@@ -210,57 +216,17 @@ function ProfilePage() {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-10 rounded-lg shadow-lg">
-            <h2 className="text-lg text-gray-900 mb-4 text-center font-bold">프로필 이미지 변경</h2>
-            <div className="w-64 h-64 bg-gray-300 mb-4 rounded-lg flex items-center justify-center">
-              {selectedImage ? (
-                <Image
-                  src={selectedImage as string}
-                  alt="Profile"
-                  className="w-full h-full object-cover rounded-lg"
-                  width={256}
-                  height={256}
-                />
-              ) : (
-                <span className="text-gray-400">미리보기</span>
-              )}
-            </div>
-            <input type="file" accept="image/*" className="hidden" id="file-input" onChange={handleImageChange} />
-            <label
-              htmlFor="file-input"
-              className="mb-4 px-4 py-2 border rounded-lg flex items-center justify-center cursor-pointer"
-            >
-              <Image src="/assets/img/plus.png" alt="PlusIcon" width={12} height={12} className="mr-2" />
-              이미지 가져오기
-            </label>
-            <div className="flex space-x-2">
-              <button
-                onClick={handleImageUpload}
-                className="w-full py-2 px-4 bg-main text-white font-semibold rounded-md shadow-sm hover:bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-main"
-              >
-                저장
-              </button>
-              <button
-                onClick={closeModal}
-                className="w-full py-2 px-4  bg-main text-white font-semibold rounded-md shadow-sm hover:bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-main"
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ImageUploadModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onUpload={handleImageUpload}
+        selectedImage={selectedImage}
+        setSelectedImage={setSelectedImage}
+        titleText="프로필 이미지 변경"
+        uploadLabelText="이미지 가져오기"
+      />
 
-      {notification && (
-        <div className="fixed bottom-5 right-5 bg-main text-white px-8 py-6 rounded shadow z-50 w-72">
-          {notification}
-          <div className="h-1 bg-white mt-2 rounded-full overflow-hidden w-full">
-            <div className="bg-gray-400 h-full animate-shrink"></div>
-          </div>
-        </div>
-      )}
+      <Notification message={notification} onClose={closeNotification} />
     </Page>
   );
 }
