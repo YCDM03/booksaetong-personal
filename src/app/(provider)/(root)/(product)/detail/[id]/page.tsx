@@ -22,10 +22,15 @@ export interface Product {
   address: string;
 }
 
+interface User {
+  id: string;
+  profile_url: string;
+}
+
 function DetailPage({ params }: { params: { id: string } }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [productImages, setProductImages] = useState<{ [key: string]: string[] }>({});
-  const [userData, setUserData] = useState<any[]>([]);
+  const [userData, setUserData] = useState<User[]>([]);
   const [isKakaoMapLoaded, setIsKakaoMapLoaded] = useState(false);
 
   useEffect(() => {
@@ -103,7 +108,7 @@ function DetailPage({ params }: { params: { id: string } }) {
           />
         )}
         <RandomPostCardList />
-        <Comments />
+        <Comments productId={params.id} userData={userData} />
       </div>
     </div>
   );

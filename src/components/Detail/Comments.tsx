@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/contexts/supabase.context';
 import { useUserStore } from '@/zustand/userStore';
@@ -8,35 +6,45 @@ interface Comment {
   id: string;
   user_id: string;
   product_id: string;
-  content: string;
+  contents: string;
   created_at: string;
+}
+
+interface User {
+  id: string;
+  profile_url: string | null; // 프로필 URL이 null일 수 있음을 표시
 }
 
 interface CommentsProps {
   productId: string;
+  userData: User[]; // User 타입의 배열로 userData를 props로 받음
 }
 
-const Comments: React.FC<CommentsProps> = ({ productId }) => {
+const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>('');
+
   const { id: loggedInUserId } = useUserStore((state) => ({
     id: state.id
   }));
 
   useEffect(() => {
     const fetchComments = async () => {
-      const { data: commentsData, error } = await supabase
-        .from('comments')
-        .select('*')
-        .eq('product_id', productId)
-        .order('created_at', { ascending: false });
+      try {
+        const { data: commentsData, error } = await supabase
+          .from('comments')
+          .select('*')
+          .eq('product_id', productId)
+          .order('created_at', { ascending: false });
 
-      if (error) {
+        if (error) {
+          throw error;
+        }
+
+        setComments(commentsData || []);
+      } catch (error) {
         console.error('Error fetching comments:', error);
-        return;
       }
-
-      setComments(commentsData || []);
     };
 
     fetchComments();
@@ -50,42 +58,59 @@ const Comments: React.FC<CommentsProps> = ({ productId }) => {
       return;
     }
 
-    const { data: newCommentData, error } = await supabase
-      .from('comments')
-      .insert([{ user_id: loggedInUserId, product_id: productId, content: newComment }])
-      .single();
+    try {
+      const { data: newCommentData, error } = await supabase
+        .from('comments')
+        .insert([{ user_id: loggedInUserId, product_id: productId, contents: newComment }])
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error adding comment:', error);
-      return;
+      if (error) {
+        throw error;
+      }
+
+      setComments([newCommentData, ...comments]);
+      setNewComment('');
+    } catch (error) {
+      console.error('댓글 추가 오류:', error);
     }
-
-    setComments([newCommentData, ...comments]);
-    setNewComment('');
   };
 
   const handleDelete = async (commentId: string) => {
-    const { error } = await supabase.from('comments').delete().eq('id', commentId);
+    try {
+      const confirmDelete = window.confirm('정말 삭제하시겠습니까?');
+      if (!confirmDelete) {
+        return;
+      }
 
-    if (error) {
-      console.error('Error deleting comment:', error);
-      return;
+      await supabase.from('comments').delete().eq('id', commentId);
+      setComments(comments.filter((comment) => comment.id !== commentId));
+    } catch (error) {
+      console.error('댓글 삭제 오류:', error);
     }
-
-    setComments(comments.filter((comment) => comment.id !== commentId));
   };
 
-  const handleUpdate = async (commentId: string, updatedContent: string) => {
-    const { error } = await supabase.from('comments').update({ content: updatedContent }).eq('id', commentId);
+  const handleUpdate = async (commentId: string, updatedContents: string) => {
+    try {
+      const { error } = await supabase.from('comments').update({ contents: updatedContents }).eq('id', commentId);
 
-    if (error) {
-      console.error('Error updating comment:', error);
-      return;
+      if (error) {
+        throw error;
+      }
+
+      setComments(
+        comments.map((comment) => (comment.id === commentId ? { ...comment, contents: updatedContents } : comment))
+      );
+    } catch (error) {
+      console.error('댓글 업데이트 오류:', error);
     }
+  };
 
-    setComments(
-      comments.map((comment) => (comment.id === commentId ? { ...comment, content: updatedContent } : comment))
-    );
+  const getUserProfileUrl = (userId: string): string => {
+    const user = userData.find((u) => u.id === userId);
+    return user && user.profile_url
+      ? user.profile_url
+      : `https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/default_profile.png`;
   };
 
   return (
@@ -114,21 +139,22 @@ const Comments: React.FC<CommentsProps> = ({ productId }) => {
           <div key={comment.id} className="bg-white rounded-md p-4 mb-2 flex hover:bg-gray-50 transition-colors">
             <div className="w-12 h-12 mr-4">
               <img
-                src={
-                  'https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/profiles/550e8400-e29b-41d4-a716-446655440000/default_profile.png'
-                }
+                src={getUserProfileUrl(comment.user_id)}
                 alt="프로필 이미지"
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
             <div className="flex-1">
               <p className="font-bold">{comment.user_id}</p>
-              <p className="text-gray-800">{comment.content}</p>
+              <p className="text-gray-800">{comment.contents}</p>
               {loggedInUserId === comment.user_id && (
                 <div className="mt-2">
                   <button
                     onClick={() =>
-                      handleUpdate(comment.id, prompt('수정할 내용을 입력해주세요', comment.content) || comment.content)
+                      handleUpdate(
+                        comment.id,
+                        prompt('수정할 내용을 입력해주세요', comment.contents) || comment.contents
+                      )
                     }
                     className="text-blue-500 hover:underline mr-2"
                   >
