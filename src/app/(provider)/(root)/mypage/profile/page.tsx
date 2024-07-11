@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { useUserStore } from '@/zustand/userStore';
 import { LoadingCenter } from '@/components/common/Loading';
 import { Notification } from '@/components/common/Alert';
-import { useRouter } from 'next/navigation';
 import ImageUploadModal from '@/components/common/Modal/ImageUploadModal';
 
 function ProfilePage() {
@@ -19,7 +18,6 @@ function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [localNickname, setLocalNickname] = useState(nickname || '');
   const [localAddress, setLocalAddress] = useState(address || '');
-  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -35,7 +33,6 @@ function ProfilePage() {
           }
           if (!session) {
             console.error('No session found:', error);
-            // router.push('/login'); // 새로고침후 테스트해봐야됨
             return;
           }
           const user = session.user;
