@@ -4,6 +4,9 @@ import { useState } from 'react';
 import type { NextPage } from 'next';
 import KakaoMap from '@/components/common/KakaoMap';
 import Image from 'next/image';
+import { supabase } from '@/contexts/supabase.context';
+import { uuid } from 'uuidv4';
+import { useUserStore } from '@/zustand/userStore';
 
 const PostPage: NextPage = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -11,14 +14,21 @@ const PostPage: NextPage = () => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [price, setPrice] = useState('');
-  const [content, setContent] = useState('');
-  const [markerPosition, setMarkerPosition] = useState({ lat: 0, lng: 0 }); // 마커의 초기 위치는 임의로 설정
+  const [contents, setContents] = useState('');
+  const [markerPosition, setMarkerPosition] = useState({ latitude: 0, longitude: 0 });
+  const [address, setAddress] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const { id } = useUserStore((state) => ({
+    id: state.id
+  }));
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
       const newImages = Array.from(files).map((file) => URL.createObjectURL(file));
       setImages([...images, ...newImages]);
+      setSelectedFiles([...selectedFiles, ...Array.from(files)]);
     }
   };
 
@@ -34,43 +44,121 @@ const PostPage: NextPage = () => {
     }
   };
 
-  const handleMarkerPositionChange = (position: { lat: number; lng: number }) => {
-    setMarkerPosition(position);
+  const handleMarkerPositionChange = (position: { lat: number; lng: number; address: string }) => {
+    setMarkerPosition({ latitude: position.lat, longitude: position.lng });
+    setAddress(position.address); // 주소 정보 업데이트
   };
 
-  const handleSubmit = () => {
-    if (title && category && price && content) {
-      if (confirm('작성을 완료하시겠습니까?')) {
-        // 여기서 슈퍼베이스에 데이터 저장 로직 구현
-        console.log('데이터를 저장합니다.');
-        console.log({
-          title,
-          category,
-          price,
-          content,
-          images,
-          markerPosition
-        });
+  // 이미지 업로드 함수
+  const imageUpload = async (selectedFile: File) => {
+    const filePath = `products/${uuid()}_${Date.now()}`;
 
-        // 저장 후 필드 초기화
-        setTitle('');
-        setCategory('');
-        setPrice('');
-        setContent('');
-        setImages([]);
-        setCurrentIndex(0);
-        setMarkerPosition({ lat: 0, lng: 0 }); // 마커 초기 위치 초기화
-        // 파일 업로드 필드 초기화
-        const fileInput = document.getElementById('image') as HTMLInputElement;
-        if (fileInput) {
-          fileInput.value = '';
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, selectedFile);
+    if (uploadError) {
+      console.error('업로드에러 :', uploadError);
+      return;
+    }
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+
+    debugger;
+
+    if (!data || !data.publicUrl) {
+      console.error('public URL 반환에러');
+      return;
+    }
+
+    return data.publicUrl;
+  };
+
+  // 폼 제출 처리
+  const handleSubmit = async () => {
+    console.log('제목:', title);
+    console.log('카테고리:', category);
+    console.log('금액:', price);
+    console.log('내용:', contents);
+    console.log('주소:', address);
+    console.log('이미지:', images);
+    console.log('마커 위치:', markerPosition);
+
+    if (title && category && price && contents && address && images.length > 0) {
+      if (confirm('작성을 완료하시겠습니까?')) {
+        try {
+          // 상품 데이터 삽입
+          const { data: productData, error: productError } = await supabase
+            .from('products')
+            .insert([
+              {
+                user_id: id,
+                title,
+                category,
+                price: parseFloat(price),
+                contents,
+                latitude: markerPosition.latitude,
+                longitude: markerPosition.longitude,
+                address
+              }
+            ])
+            .select();
+
+          if (productError) {
+            throw productError;
+          }
+
+          console.log('상품 데이터를 저장했습니다:', productData);
+
+          // 이미지 데이터 삽입
+          const imageUrls = await Promise.all(selectedFiles.map((file) => imageUpload(file)));
+          if (imageUrls.length !== selectedFiles.length) {
+            deleteProduct(productData[0].id);
+            throw new Error();
+          }
+
+          const imageInsertData = imageUrls.map((imageUrl) => ({
+            product_id: productData[0].id,
+            image_url: imageUrl
+          }));
+
+          const { data: imageData, error: imageError } = await supabase.from('product_images').insert(imageInsertData);
+
+          if (imageError) {
+            deleteProduct(productData[0].id);
+            throw imageError;
+          }
+
+          console.log('이미지 데이터를 저장했습니다:', imageData);
+
+          // 필드 초기화
+          setTitle('');
+          setCategory('');
+          setPrice('');
+          setContents('');
+          setAddress('');
+          setImages([]);
+          setSelectedFiles([]);
+          setCurrentIndex(0);
+          setMarkerPosition({ latitude: 0, longitude: 0 });
+
+          // 파일 업로드 필드 초기화
+          const fileInput = document.getElementById('image') as HTMLInputElement;
+          if (fileInput) {
+            fileInput.value = '';
+          }
+
+          console.log('모든 데이터 저장을 완료했습니다.');
+        } catch (error) {
+          console.error('데이터 저장 중 오류 발생:', error.message);
         }
       } else {
         console.log('작성이 취소되었습니다.');
       }
     } else {
-      alert('제목, 카테고리, 금액, 내용을 모두 입력해주세요.');
+      alert('제목, 카테고리, 금액, 내용, 주소 및 사진을 모두 입력해주세요.');
     }
+  };
+
+  const deleteProduct = async (productsId) => {
+    const { error } = await supabase.from('products').delete().eq('Id', productsId);
   };
 
   return (
@@ -117,15 +205,15 @@ const PostPage: NextPage = () => {
             />
           </div>
           <div className="flex flex-col space-y-1">
-            <label htmlFor="content" className="text-sm text-gray-700">
+            <label htmlFor="contents" className="text-sm text-gray-700">
               내용
             </label>
             <textarea
-              id="content"
+              id="contents"
               rows={4}
               className="border border-gray-300 px-2 py-1"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              value={contents}
+              onChange={(e) => setContents(e.target.value)}
             />
           </div>
         </div>
@@ -175,7 +263,7 @@ const PostPage: NextPage = () => {
                 </button>
               )}
               <div className="absolute top-44 bottom-0 left-0 right-0 z-0">
-                <p className="text-gray-600">거래 희망 위치</p>
+                <p className="text-gray-600">거래 희망</p>
                 <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} />
               </div>
             </div>

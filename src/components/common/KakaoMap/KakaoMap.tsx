@@ -84,12 +84,10 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
         if (result[0]) {
           const address = result[0].address.address_name;
           setMarkerPosition({ lat, lng });
-          setMarkerAddress(address); // Update marker address state
+          setMarkerAddress(address);
 
-          // Set content of InfoWindow
           infoWindow?.setContent(address);
 
-          // Open InfoWindow at the marker position
           if (map && infoWindow) {
             const markerPosition = new kakao.maps.LatLng(lat, lng);
             infoWindow.setContent(`
