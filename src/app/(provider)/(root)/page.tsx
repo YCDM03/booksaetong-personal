@@ -47,7 +47,7 @@ function HomePage() {
 
   if (isPending) return <Loading />;
   return (
-    <div className="flex flex-col items-center max-w-[1024px] mx-auto my-10">
+    <div className="flex flex-col items-center max-w-[1024px] mx-auto my-10 box-border">
       <PostList title="전체도서목록">
         <>
           <Swiper

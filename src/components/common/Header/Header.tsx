@@ -1,5 +1,6 @@
 'use client';
 
+import AuthAlert from '@/components/Auth/AuthAlert';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
 import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
@@ -7,7 +8,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
-import AuthAlert from '@/components/Auth/AuthAlert';
 
 function Header() {
   const router = useRouter();
@@ -48,7 +48,7 @@ function Header() {
   };
 
   return (
-    <header className="flex justify-center w-screen h-[70px] shadow-lg shadow-gray-100">
+    <header className="flex justify-center w-full h-[70px] shadow-lg shadow-gray-100 box-border">
       <div className="flex flex-row items-center justify-between lg:w-2/3 md:w-full">
         <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={true} success={logoutSuccess} />
         <div className="flex items-center">
