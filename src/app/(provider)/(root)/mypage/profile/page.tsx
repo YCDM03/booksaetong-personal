@@ -4,58 +4,76 @@ import Page from '@/components/MyPage/Page';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/contexts/supabase.context';
 import Image from 'next/image';
+import { useUserStore } from '@/zustand/userStore';
+import { LoadingCenter } from '@/components/common/Loading';
+import { Notification } from '@/components/common/Alert';
+import { useRouter } from 'next/navigation';
+import { ImageUploadModal } from '@/components/common/Modal';
 
 function ProfilePage() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | ArrayBuffer | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [nickname, setNickname] = useState('');
-  const [address, setAddress] = useState('');
   const [notification, setNotification] = useState('');
+  const { id, nickname, address, profile_url, setUser } = useUserStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const [localNickname, setLocalNickname] = useState(nickname || '');
+  const [localAddress, setLocalAddress] = useState(address || '');
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      if (userData?.id) {
-        setUserId(userData.id);
-        setNickname(userData.nickname);
-        setAddress(userData.address);
-        setSelectedImage(userData.profile_url);
-      } else {
-        const {
-          data: { session },
-          error
-        } = await supabase.auth.getSession();
-        if (session) {
+      if (!id) {
+        try {
+          const {
+            data: { session },
+            error
+          } = await supabase.auth.getSession();
+          if (error) {
+            console.error('Error fetching session:', error);
+            return;
+          }
+          if (!session) {
+            console.error('No session found:', error);
+            // router.push('/login'); // 새로고침후 테스트해봐야됨
+            return;
+          }
           const user = session.user;
-          setUserId(user.id);
-          const { data, error } = await supabase
+          const { data, error: userError } = await supabase
             .from('users')
-            .select('nickname, address, profile_url')
+            .select('id, email, nickname, address, profile_url')
             .eq('id', user.id)
             .single();
-          if (data) {
-            setNickname(data.nickname);
-            setAddress(data.address);
-            setSelectedImage(data.profile_url);
-          } else {
-            console.error('유저 데이터를 가져오는 중 오류:', error);
+          if (userError) {
+            console.error('Error fetching user data:', userError);
+            return;
           }
-        } else {
-          console.error('No session found:', error);
+          if (data) {
+            setUser(data.id, data.email, data.nickname, data.profile_url, data.address);
+            setLocalNickname(data.nickname);
+            setLocalAddress(data.address);
+            setSelectedImage(data.profile_url);
+          }
+        } catch (fetchError) {
+          console.error('Unexpected error fetching user data:', fetchError);
+        } finally {
+          setIsLoading(false);
         }
+      } else {
+        setLocalNickname(nickname || '');
+        setLocalAddress(address || '');
+        setSelectedImage(profile_url);
+        setIsLoading(false);
       }
     };
     fetchUserData();
-  }, []);
+  }, [id, nickname, address, profile_url, setUser]);
 
   const openModal = () => {
     setModalOpen(true);
   };
   const closeModal = () => {
     setModalOpen(false);
-    setSelectedImage(null);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,10 +89,10 @@ function ProfilePage() {
   };
 
   const handleImageUpload = async () => {
-    if (!selectedImage || !userId || !selectedFile) return;
+    if (!selectedImage || !id || !selectedFile) return;
 
     const cleanFileName = selectedFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
-    const filePath = `profiles/${userId}/${Date.now()}_${cleanFileName}`;
+    const filePath = `profiles/${id}/${Date.now()}_${cleanFileName}`;
 
     const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, selectedFile);
     if (uploadError) {
@@ -92,42 +110,41 @@ function ProfilePage() {
 
     const publicURL = data.publicUrl;
 
-    const { error: updateError } = await supabase.from('users').update({ profile_url: publicURL }).eq('id', userId);
+    const { error: updateError } = await supabase.from('users').update({ profile_url: publicURL }).eq('id', id);
     if (updateError) {
       console.error('프로필 URL을 업데이트하는 중 오류:', updateError);
       return;
     }
 
-    // 업데이트된 사용자 프로필 이미지를 로컬 스토리지에 저장
-    const updatedUserData = { ...JSON.parse(localStorage.getItem('user') || '{}'), profile_url: publicURL };
-    localStorage.setItem('user', JSON.stringify(updatedUserData));
-
+    // Zustand 스토어 업데이트
+    setUser(id, useUserStore.getState().email!, localNickname, publicURL, localAddress);
     setNotification('프로필 이미지가 변경되었습니다.');
     setModalOpen(false);
   };
 
   const handleSave = async () => {
-    if (userId) {
-      const { error } = await supabase.from('users').update({ nickname, address }).eq('id', userId);
+    if (id) {
+      const { error } = await supabase
+        .from('users')
+        .update({ nickname: localNickname, address: localAddress })
+        .eq('id', id);
       if (error) {
         console.error('사용자 데이터를 업데이트하는 중 오류:', error);
       } else {
-        // 업데이트된 사용자 정보를 로컬 스토리지에 저장
-        const updatedUserData = { ...JSON.parse(localStorage.getItem('user') || '{}'), nickname, address };
-        localStorage.setItem('user', JSON.stringify(updatedUserData));
+        // Zustand 스토어 업데이트
+        setUser(id, useUserStore.getState().email!, localNickname, profile_url!, localAddress);
         setNotification('프로필 정보가 변경되었습니다.');
       }
     }
   };
 
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => {
-        setNotification('');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [notification]);
+  const closeNotification = () => {
+    setNotification('');
+  };
+
+  if (isLoading) {
+    return <LoadingCenter />;
+  }
 
   return (
     <Page title="프로필 수정">
@@ -172,8 +189,8 @@ function ProfilePage() {
               <input
                 type="text"
                 id="nickname"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                value={localNickname}
+                onChange={(e) => setLocalNickname(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-main rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-500"
               />
             </div>
@@ -184,8 +201,8 @@ function ProfilePage() {
               <input
                 type="text"
                 id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                value={localAddress}
+                onChange={(e) => setLocalAddress(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-main rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-500"
               />
             </div>
@@ -199,57 +216,17 @@ function ProfilePage() {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-10 rounded-lg shadow-lg">
-            <h2 className="text-lg text-gray-900 mb-4 text-center font-bold">프로필 이미지 변경</h2>
-            <div className="w-64 h-64 bg-gray-300 mb-4 rounded-lg flex items-center justify-center">
-              {selectedImage ? (
-                <Image
-                  src={selectedImage as string}
-                  alt="Profile"
-                  className="w-full h-full object-cover rounded-lg"
-                  width={256}
-                  height={256}
-                />
-              ) : (
-                <span className="text-gray-400">미리보기</span>
-              )}
-            </div>
-            <input type="file" accept="image/*" className="hidden" id="file-input" onChange={handleImageChange} />
-            <label
-              htmlFor="file-input"
-              className="mb-4 px-4 py-2 border rounded-lg flex items-center justify-center cursor-pointer"
-            >
-              <Image src="/assets/img/plus.png" alt="PlusIcon" width={12} height={12} className="mr-2" />
-              이미지 가져오기
-            </label>
-            <div className="flex space-x-2">
-              <button
-                onClick={handleImageUpload}
-                className="w-full py-2 px-4 bg-main text-white font-semibold rounded-md shadow-sm hover:bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-main"
-              >
-                저장
-              </button>
-              <button
-                onClick={closeModal}
-                className="w-full py-2 px-4  bg-main text-white font-semibold rounded-md shadow-sm hover:bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-main"
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ImageUploadModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onUpload={handleImageUpload}
+        selectedImage={selectedImage}
+        setSelectedImage={setSelectedImage}
+        titleText="프로필 이미지 변경"
+        uploadLabelText="이미지 가져오기"
+      />
 
-      {notification && (
-        <div className="fixed bottom-5 right-5 bg-main text-white px-8 py-6 rounded shadow z-50 w-72">
-          {notification}
-          <div className="h-1 bg-white mt-2 rounded-full overflow-hidden w-full">
-            <div className="bg-gray-400 h-full animate-shrink"></div>
-          </div>
-        </div>
-      )}
+      <Notification message={notification} onClose={closeNotification} />
     </Page>
   );
 }
