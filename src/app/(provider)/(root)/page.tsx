@@ -51,7 +51,6 @@ function HomePage() {
         <Swiper modules={[Navigation]} slidesPerView={4} navigation>
           {allPosts?.map((post, index) => {
             if (index > 9) return false;
-            console.log(post);
             return (
               <SwiperSlide key={post.id}>
                 <PostCard post={post} />
