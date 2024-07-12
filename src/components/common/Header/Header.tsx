@@ -57,7 +57,14 @@ function Header() {
       <div className="flex  items-center   w-screen max-w-[1200px] lg:flex-row lg:justify-between flex-col justify-center sm:gap-4">
         <div className="flex items-center gap-0 flex-col lg:flex-row sm:flex-row sm:gap-8 justify-center ">
           <Link href={'/'}>
-            <h1 className="text-xl font-semibold cursor-pointer">북새통</h1>
+            <Image
+              src="https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/booksaetong_logo.png"
+              width={230}
+              height={58}
+              alt="북새통 로고"
+              className="h-12 w-auto"
+            />
+            {/* <h1 className="text-xl font-semibold cursor-pointer">북새통</h1> */}
           </Link>
           <nav>
             <ul className="flex cursor-pointer text-sm text-gray-600 sm:gap-8 gap-3 min-w-[300px] justify-center">

@@ -17,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="public/favicon.png" />
+        <link
+          rel="icon"
+          href="https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/favicon_booksaetong.png"
+        />
       </head>
       <body className={inter.className}>{children}</body>
     </html>

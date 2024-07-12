@@ -92,7 +92,7 @@ function DetailPage({ params }: { params: { id: string } }) {
   return (
     <div className="flex justify-center">
       <div className="container mx-auto w-11/12 lg:w-[1440px] flex flex-col items-center">
-        <ProductCard products={products} productImages={productImages} userData={userData} />
+        <ProductCard products={products} productImages={productImages} />
         {products.length > 0 && (
           <>
             <ProductIntro contents={products[0].contents} />
