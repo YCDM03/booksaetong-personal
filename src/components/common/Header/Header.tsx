@@ -45,7 +45,10 @@ function Header() {
     clearUser();
     setLogoutSuccess(true);
     setAuthAlert('로그아웃 되었습니다.');
-    currentPathName === '/mypage/*' || '/post/*' ? router.push('/login') : null;
+
+    currentPathName.includes('mypage') || currentPathName.includes('edit') || currentPathName.includes('post')
+      ? router.push('/login')
+      : null;
   };
 
   return (
