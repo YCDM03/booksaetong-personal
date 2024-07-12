@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/contexts/supabase.context';
-import PostCard from '../common/PostCard';
 import { Posts } from '@/types/Post.type';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import Link from 'next/link';
@@ -48,20 +47,20 @@ const RandomPostCardList = () => {
   };
 
   return (
-    <div className="flex flex-col items-center max-w-[1000px] mx-auto my-10">
+    <div className="flex flex-col items-center w-[1000px] mx-auto my-10">
       <div className="w-full">
         <div className="flex">
           <h2 className="text-2xl font-semibold my-5">랜덤 추천</h2>
           <button className="text-xs text-gray-400 ml-7 cursor-pointer hover:brightness-90" onClick={handleShuffle}>
-            더 보기 {'>'}
+            View More {'>'}
           </button>
         </div>
         <div className="flex flex-row w-full h-[350px]">
-          <Swiper className="custom-swiper-container" slidesPerView={4}>
+          <Swiper className="custom-swiper-container" slidesPerView={4} spaceBetween={20}>
             {allPosts.map((post) => (
               <SwiperSlide key={post.id}>
                 <Link href={`/detail/${post.id}`}>
-                  <div className="flex flex-col w-[220px] h-[350px] gap-y-2 cursor-pointer mx-5 px-3">
+                  <div className="flex flex-col w-[220px] h-[350px] gap-y-2 cursor-pointer">
                     <div className="relative aspect-square my-3">
                       <Image
                         src={post.product_images?.[0]?.image_url || '/placeholder.jpg'}
@@ -70,7 +69,7 @@ const RandomPostCardList = () => {
                         className="object-cover rounded-lg border"
                       />
                     </div>
-                    <h6 className="text-md overflow-hidden text-ellipsis">{post.title}</h6>
+                    <h6 className="text-md overflow-hidden text-ellipsis whitespace-nowrap">{post.title}</h6>
                     <p className="text-sm font-semibold">{formatPrice(post.price)}원</p>
                     <p className="text-gray-600 text-xs">{post.address}</p>
                   </div>
