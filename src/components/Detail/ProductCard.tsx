@@ -23,17 +23,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
   useEffect(() => {
     const fetchLikedStatus = async () => {
       if (loggedInUserId && products.length > 0) {
-        const { data, error } = await supabase
-          .from('product_likes')
-          .select('id')
-          .eq('user_id', loggedInUserId)
-          .eq('product_id', products[0].id)
-          .single();
+        try {
+          const { data, error } = await supabase
+            .from('product_likes')
+            .select('id')
+            .eq('user_id', loggedInUserId)
+            .eq('product_id', products[0].id)
+            .single();
 
-        if (error) {
+          if (error) {
+            throw error;
+          } else if (data) {
+            setLiked(true);
+          }
+        } catch (error) {
           console.error('Error fetching like status:', error);
-        } else if (data) {
-          setLiked(true);
         }
       }
     };
@@ -44,12 +48,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
   useEffect(() => {
     const fetchUserEmail = async () => {
       if (products.length > 0) {
-        const { data, error } = await supabase.from('users').select('email').eq('id', products[0].user_id).single();
+        try {
+          const { data, error } = await supabase.from('users').select('email').eq('id', products[0].user_id).single();
 
-        if (error) {
+          if (error) {
+            throw error;
+          } else if (data) {
+            setUserEmail(data.email);
+          }
+        } catch (error) {
           console.error('Error fetching user email:', error);
-        } else if (data) {
-          setUserEmail(data.email);
         }
       }
     };
@@ -63,24 +71,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
       return;
     }
 
-    setLiked((prevLiked) => !prevLiked);
+    try {
+      setLiked((prevLiked) => !prevLiked);
 
-    if (liked) {
-      const { error } = await supabase
-        .from('product_likes')
-        .delete()
-        .eq('user_id', loggedInUserId)
-        .eq('product_id', productId);
-
-      if (error) {
-        console.error('Error deleting like:', error);
+      if (liked) {
+        await supabase.from('product_likes').delete().eq('user_id', loggedInUserId).eq('product_id', productId);
+      } else {
+        await supabase.from('product_likes').insert({ user_id: loggedInUserId, product_id: productId });
       }
-    } else {
-      const { error } = await supabase.from('product_likes').insert({ user_id: loggedInUserId, product_id: productId });
-
-      if (error) {
-        console.error('Error inserting like:', error);
-      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
     }
   };
 
@@ -93,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
     <>
       {products.length > 0 && (
         <div className="container flex justify-center my-10">
-          <div className="w-[1440px] h-[480px] border-transparent rounded-md flex items-center place-content-evenly shadow-detail">
+          <div className="min-w-[1200px] h-[480px] border-transparent rounded-md flex items-center place-content-evenly shadow-detail">
             <div className="w-[500px] h-[400px]">
               {productImages[products[0].id] ? (
                 <SwiperSlider images={productImages[products[0]?.id]} />
@@ -123,7 +123,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
                     <img
                       src={
                         userData[0].profile_url ||
-                        'https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/profiles/550e8400-e29b-41d4-a716-446655440000/default_profile.png'
+                        'https://wwqtgagcybxbzyouattn.supabase.co/storage/v1/object/public/avatars/default_profile.png'
                       }
                       alt="유저 프로필 이미지"
                       className="object-cover w-12 h-12 rounded-full mr-2"
