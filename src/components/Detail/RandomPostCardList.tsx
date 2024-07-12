@@ -60,7 +60,7 @@ const RandomPostCardList = () => {
           <Swiper className="custom-swiper-container" slidesPerView={4} spaceBetween={20}>
             {allPosts.map((post) => (
               <SwiperSlide key={post.id}>
-                {/* <Link href={`/detail/${post.id}`}>
+                <Link href={`/detail/${post.id}`}>
                   <div className="flex flex-col w-[220px] h-[350px] gap-y-2 cursor-pointer">
                     <div className="relative aspect-square my-3">
                       <Image
@@ -74,8 +74,8 @@ const RandomPostCardList = () => {
                     <p className="text-sm font-semibold">{formatPrice(post.price)}원</p>
                     <p className="text-gray-600 text-xs">{post.address}</p>
                   </div>
-                </Link> */}
-                <PostCard />
+                </Link>
+                {/* <PostCard/> */}
               </SwiperSlide>
             ))}
           </Swiper>

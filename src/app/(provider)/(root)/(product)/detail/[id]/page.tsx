@@ -30,6 +30,10 @@ export interface User {
   email: string;
 }
 
+// type PostCardProps = {
+//   post: Posts;
+// };
+
 function DetailPage({ params }: { params: { id: string } }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [productImages, setProductImages] = useState<{ [key: string]: string[] }>({});
