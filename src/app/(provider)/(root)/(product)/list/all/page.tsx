@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import CategoryFilter from '@/components/list/CategoryFilter';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import ProductList from '@/components/list/ProductList';
@@ -11,6 +11,8 @@ import ProductListEmpty from '@/components/list/ProductListEmpty';
 import { LoadingCenter, LoadingTop } from '@/components/common/Loading';
 
 function ListOfAllPage() {
+
+  const [showFilter, setShowFilter] = useState(false);
 
   const {
     search: { keyword, categoryList },
@@ -56,29 +58,34 @@ function ListOfAllPage() {
   }, []);
 
   return (
-    <div>
-      <div className={'flex gap-10 mt-[100px] '}>
-        <div>
-          <CategoryFilter checkBoxOptions={defaultOptions}></CategoryFilter>
-        </div>
-        <div className={'w-full'}>
-          <div className={'flex flex-col'}>
-            <ProductListHeader keyword={keyword} title={'도서 전체 목록'}>
-              {isPending ?
-                <div className={'flex justify-start w-[1000px] mt-[100px]'}>
-                </div> :
-                data?.pages[0].productList.length !== 0 ?
-                  <ProductList pageList={data?.pages} />
-                  :
-                  <ProductListEmpty />
-              }
+    <div className={`flex flex-col sm:flex-row max-w-[1200px] mx-auto my-10 sm:mx-0`}>
+      <div className={`sm:hidden ${showFilter && "hidden"} flex justify-center ml-10`}>
+        <button
+          className="p-2 bg-blue-500 text-white rounded "
+          onClick={() => setShowFilter(!showFilter)}
+        >
+          카테고리 보기
+        </button>
+      </div>
+      <div className={`${showFilter ? 'block' : 'hidden'} sm:block`}>
+        <CategoryFilter checkBoxOptions={defaultOptions} showFilter={showFilter} setShowFilter={setShowFilter}></CategoryFilter>
+      </div>
+      <div className="px-10 max-w-[1000px] md:w-[1000px]">
+        <div className="flex flex-col items-center ">
+          <ProductListHeader keyword={keyword} title={'도서 전체 목록'}>
+            {isPending ? (
+              <LoadingCenter />
+            ) : data?.pages[0].productList.length !== 0 ? (
+              <ProductList pageList={data?.pages} />
+            ) : (
+              <div className={"w-full mx-auto h-full"}>
+                <ProductListEmpty />
+              </div>
 
-              {isFetchingNextPage &&
-                <div className={'flex justify-start w-[1000px] mt-[100px]'}>
-                  <LoadingTop></LoadingTop>
-                </div>}
-            </ProductListHeader>
-          </div>
+            )}
+
+            {isFetchingNextPage && <LoadingCenter />}
+          </ProductListHeader>
         </div>
       </div>
     </div>

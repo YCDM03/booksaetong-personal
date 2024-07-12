@@ -2,8 +2,7 @@ import { Checkbox, CheckboxProps } from 'antd';
 import React from 'react';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
 
-function CategoryFilter({ checkBoxOptions }: string[]) {
-
+function CategoryFilter({ checkBoxOptions, showFilter, setShowFilter }) {
   const {
     search: { categoryList },
     setCategoryList
@@ -21,13 +20,19 @@ function CategoryFilter({ checkBoxOptions }: string[]) {
   };
 
   return (
-    <div
-      className={'w-[170px] h-auto pt-[24px] pr-[24px] pl-[24px] pb-[20px] gap-[10px] flex flex-col border border-gray-300 rounded-lg'}>
-      <div className={'pb-3'}>카테고리</div>
-      <Checkbox className={' '} indeterminate={indeterminate}
+    <div className="relative w-[430px] sm:w-[200px] px-[24px] py-[24px] border border-gray-300 rounded-lg">
+      <div className="absolute top-2 right-2 sm:hidden">
+        <button
+          className=" text-2xl"
+          onClick={() => setShowFilter(!showFilter)}
+        >
+          X
+        </button>
+      </div>
+      <Checkbox className="pb-2" indeterminate={indeterminate}
                 onChange={onCheckAllChange}
                 checked={checkAll}> 전체</Checkbox>
-      <Checkbox.Group className={'gap-[10px] t-[100px]'} options={checkBoxOptions}
+      <Checkbox.Group className="gap-[10px] flex flex-row sm:flex-col" options={checkBoxOptions}
                       value={categoryList}
                       onChange={onChange} />
     </div>
