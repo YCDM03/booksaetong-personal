@@ -3,6 +3,7 @@ import { getAllPostList } from '@/api/mainApi';
 import Loading from '@/components/common/Loading/LoadingCenter';
 import PostCard from '@/components/common/PostCard';
 import PostList from '@/components/common/PostList';
+import SwiperButton from '@/components/common/Swiper/SwiperButton';
 import EmptyState from '@/components/EmptyState';
 import { Posts } from '@/types/Post.type';
 import { useUserStore } from '@/zustand/userStore';
@@ -68,12 +69,12 @@ function HomePage() {
               );
             })}
           </Swiper>
-          <div className="swiper-button-next-all-custom absolute flex justify-center items-center top-1/2 transform -translate-y-1/2 z-10 cursor-pointer -right-[80px] w-14 h-14 rounded-full bg-blue-100 hover:brightness-90 active:brightness-75">
+          <SwiperButton intent="allRight">
             <RiArrowRightWideLine size={40} color="white" />
-          </div>
-          <div className="swiper-button-prev-all-custom absolute flex justify-center items-center top-1/2 transform -translate-y-1/2 z-10 cursor-pointer -left-[80px] w-14 h-14 rounded-full bg-blue-100 hover:brightness-90 active:brightness-75">
+          </SwiperButton>
+          <SwiperButton intent="allLeft">
             <RiArrowLeftWideLine size={40} color="white" />
-          </div>
+          </SwiperButton>
         </>
       </PostList>
 
@@ -100,12 +101,12 @@ function HomePage() {
                   );
                 })}
               </Swiper>
-              <div className="swiper-button-next-custom absolute flex justify-center items-center top-1/2 transform -translate-y-1/2 z-10 cursor-pointer -right-[80px] w-14 h-14 rounded-full bg-blue-100 hover:brightness-90 active:brightness-75">
+              <SwiperButton intent="areaRight">
                 <RiArrowRightWideLine size={40} color="white" />
-              </div>
-              <div className="swiper-button-prev-custom absolute flex justify-center items-center top-1/2 transform -translate-y-1/2 z-10 cursor-pointer -left-[80px] w-14 h-14 rounded-full bg-blue-100 hover:brightness-90 active:brightness-75">
+              </SwiperButton>
+              <SwiperButton intent="areaLeft">
                 <RiArrowLeftWideLine size={40} color="white" />
-              </div>
+              </SwiperButton>
             </>
           ) : (
             <div className="flex w-full h-fit justify-center items-center">
