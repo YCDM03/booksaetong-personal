@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
+import logo from '../../../../public/assets/img/logo.png';
 
 function Header() {
   const router = useRouter();
@@ -53,7 +54,7 @@ function Header() {
         <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={true} success={logoutSuccess} />
         <div className="flex items-center">
           <Link href={'/'}>
-            <h1 className="text-xl font-semibold cursor-pointer">북새통</h1>
+            <Image src={logo} alt="북새통 로고" width={190} height={50} />
           </Link>
           <nav>
             <ul className="flex ml-20 cursor-pointer text-sm text-gray-600 gap-8">
