@@ -50,7 +50,7 @@ const RandomPostCardList = () => {
     <div className="flex flex-col items-center w-[1000px] mx-auto my-10">
       <div className="w-full">
         <div className="flex">
-          <h2 className="text-2xl font-semibold my-5">랜덤 추천</h2>
+          <h2 className="text-2xl font-semibold my-[20px]">랜덤 추천</h2>
           <button className="text-xs text-gray-400 ml-7 cursor-pointer hover:brightness-90" onClick={handleShuffle}>
             View More {'>'}
           </button>

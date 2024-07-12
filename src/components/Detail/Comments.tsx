@@ -176,7 +176,7 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
 
   return (
     <div className="w-full lg:w-[1000px] py-8">
-      <h6 className="text-2xl font-bold mb-2">댓글</h6>
+      <h6 className="text-2xl font-bold my-[20px]">댓글</h6>
       <form onSubmit={handleSubmit} className="bg-gray-100 rounded-md p-4 flex items-end mb-4">
         <textarea
           rows={3}
@@ -195,38 +195,40 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
 
       <div>
         {comments.map((comment) => (
-          <div key={comment.id} className="bg-white rounded-md p-4 mb-2 flex hover:bg-gray-50 transition-colors">
-            <div className="w-12 h-12 mr-4 relative">
-              <Image
-                src={getUserProfileUrl(comment.user_id)}
-                alt="프로필 이미지"
-                fill
-                className="w-full h-full rounded-full object-cover"
-              />
-            </div>
-            <div className="flex-2">
-              <div className="flex items-center justify-between">
-                <p className="font-medium">{getUserEmail(comment.user_id)}</p>
+          <div>
+            <div key={comment.id} className="bg-white rounded-md p-4 mb-2 flex hover:bg-gray-50 transition-colors">
+              <div className="w-12 h-12 mr-4 relative">
+                <Image
+                  src={getUserProfileUrl(comment.user_id)}
+                  alt="프로필 이미지"
+                  fill
+                  className="w-full h-full rounded-full object-cover"
+                />
               </div>
-              <div className="text-gray-800 inline-block" style={{ whiteSpace: 'pre-wrap' }}>
-                {comment.contents}
-              </div>
-              {renderUpdatedText(comment)}
-              <p className="text-xs text-gray-400 mt-2">{formatTime(comment.created_at)}</p>
-              {loggedInUserId === comment.user_id && (
-                <div className="mt-4">
-                  <button onClick={() => handleUpdate(comment.id)} className="text-blue-500 hover:underline mr-2">
-                    수정
-                  </button>
-                  <button onClick={() => handleDelete(comment.id)} className="text-red-500 hover:underline">
-                    삭제
-                  </button>
+              <div className="flex-2">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">{getUserEmail(comment.user_id)}</p>
                 </div>
-              )}
+                <div className="text-gray-800 inline-block" style={{ whiteSpace: 'pre-wrap' }}>
+                  {comment.contents}
+                </div>
+                {renderUpdatedText(comment)}
+                <p className="text-xs text-gray-400 mt-2">{formatTime(comment.created_at)}</p>
+                {loggedInUserId === comment.user_id && (
+                  <div className="mt-4">
+                    <button onClick={() => handleUpdate(comment.id)} className="text-blue-500 hover:underline mr-2">
+                      수정
+                    </button>
+                    <button onClick={() => handleDelete(comment.id)} className="text-red-500 hover:underline">
+                      삭제
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
+            {comments.length > 0 && <hr className="my-2 border-gray-100" />}
           </div>
         ))}
-        {comments.length > 0 && <hr className="my-4 border-gray-100" />}
       </div>
     </div>
   );

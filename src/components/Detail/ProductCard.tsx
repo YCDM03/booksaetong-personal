@@ -93,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages, user
     <>
       {products.length > 0 && (
         <div className="container flex justify-center my-10">
-          <div className="w-[1440px] h-[480px] border-transparent rounded-md flex items-center place-content-evenly shadow-detail">
+          <div className="min-w-[1200px] h-[480px] border-transparent rounded-md flex items-center place-content-evenly shadow-detail">
             <div className="w-[500px] h-[400px]">
               {productImages[products[0].id] ? (
                 <SwiperSlider images={productImages[products[0]?.id]} />

@@ -15,9 +15,9 @@ const Location: React.FC<LocationProps> = ({ latitude, longitude, address }) => 
 
   return (
     <div className="w-full lg:w-[1000px] py-8">
-      <h6 className="text-2xl font-bold mb-2">거래 희망장소</h6>
+      <h6 className="text-2xl font-bold my-[20px]">거래 희망장소</h6>
       <p>{address}</p>
-      <div className="rounded-md mt-4 overflow-hidden">
+      <div className="rounded-md mt-[20px] overflow-hidden">
         <KakaoMapWithCenter center={center} markerPosition={markerPosition} />
       </div>
     </div>
