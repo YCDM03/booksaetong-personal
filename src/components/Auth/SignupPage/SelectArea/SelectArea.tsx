@@ -11,7 +11,7 @@ interface SelectAreaProps {
 }
 
 function SelectArea({ area, subArea, setArea, setSubArea }: SelectAreaProps) {
-  const [selectedArea, setSelectedArea] = useState<string | null>(area || null);
+  const [selectedArea, setSelectedArea] = useState<string>(area || '');
 
   const handleSelectArea = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -30,7 +30,7 @@ function SelectArea({ area, subArea, setArea, setSubArea }: SelectAreaProps) {
 
   return (
     <div className="flex justify-center gap-5">
-      <select className="w-24" name="area" id="area" onChange={handleSelectArea} value={area || ''}>
+      <select className="w-24" name="area" id="area" onChange={handleSelectArea} value={area || selectedArea}>
         <option className="hidden" key={'지역'} value={''}>
           지역
         </option>

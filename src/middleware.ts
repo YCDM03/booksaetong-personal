@@ -1,7 +1,14 @@
-import { type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { updateSession } from './utils/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
+  // console.log(request.referrer);
+  if (request.nextUrl.pathname === '/mypage/profile' || request.nextUrl.pathname === '/post') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+
+    return request.cookies.get('sb-wwqtgagcybxbzyouattn-auth-token') ? NextResponse.next() : NextResponse.redirect(url);
+  }
   return await updateSession(request);
 }
 
