@@ -29,6 +29,7 @@ function MySellPage() {
   });
 
   if (isPending) return <Loading />;
+
   return (
     <Page title="판매내역">
       {myPosts ? (
