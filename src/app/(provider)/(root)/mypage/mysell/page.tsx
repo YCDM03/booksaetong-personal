@@ -29,10 +29,10 @@ function MySellPage() {
   });
 
   if (isPending) return <Loading />;
-
+  if (!myPosts) return <EmptyState empty="판매내역이" />;
   return (
     <Page title="판매내역">
-      {myPosts ? (
+      {myPosts.length > 0 ? (
         <div>
           <ul className="grid grid-cols-4 gap-5 w-full h-full mt-10">
             {myPosts?.map((like) => {
