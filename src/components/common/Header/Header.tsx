@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
-import logo from '../../../../public/assets/img/logo.png';
 
 function Header() {
   const router = useRouter();
@@ -65,7 +64,6 @@ function Header() {
               alt="북새통 로고"
               className="h-12 w-auto"
             />
-            {/* <h1 className="text-xl font-semibold cursor-pointer">북새통</h1> */}
           </Link>
           <nav>
             <ul className="flex cursor-pointer text-sm text-gray-600 sm:gap-8 gap-3 min-w-[300px] justify-center">
