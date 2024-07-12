@@ -5,7 +5,7 @@ import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
 import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
-import { redirect, usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
 
@@ -45,7 +45,7 @@ function Header() {
     clearUser();
     setLogoutSuccess(true);
     setAuthAlert('로그아웃 되었습니다.');
-    router.push('/login');
+    currentPathName === '/mypage/*' || '/post/*' ? router.push('/login') : null;
   };
 
   return (
