@@ -3,7 +3,11 @@ import { updateSession } from './utils/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
   // console.log(request.referrer);
-  if (request.nextUrl.pathname === '/mypage/profile' || request.nextUrl.pathname === '/post') {
+  if (
+    request.nextUrl.pathname.includes('/mypage') ||
+    request.nextUrl.pathname.includes('/post') ||
+    request.nextUrl.pathname.includes('/edit')
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
 
