@@ -49,8 +49,8 @@ function ListOfAroundPage() {
 
   const router = useRouter();
   useEffect(() => {
-    if (!userAddress){
-      router.push("/login")
+    if (!userAddress) {
+      router.push('/login');
     }
 
     setAddress(userAddress);
@@ -63,19 +63,20 @@ function ListOfAroundPage() {
   }, []);
 
   return (
-    <div className={'flex mt-[100px] w-full flex-col '}>
-        <ProductListHeader title={'내 근처 도서목록'} keyword={keyword}>
-          <div className={"ml-3 text-xs text-gray-500 "}>{address}</div>
+    <div className={'px-10 max-w-[1024px] mx-auto sm:mx-0 md:w-[550px] lg:w-[1024px]'}>
+      <div className={'flex flex-col'}>
+        <ProductListHeader title={'내 근처 도서목록'} keyword={keyword} address={address}>
           {data?.pages[0].productList.length !== 0 ? (
             <ProductList pageList={data?.pages} />
           ) : (
             <ProductListEmpty />
           )}
           {isFetchingNextPage &&
-            <div className={'flex justify-start w-[1000px] mt-[100px]'}>
+            <div className={'flex justify-start w-full mt-[100px]'}>
               <LoadingTop></LoadingTop>
             </div>}
         </ProductListHeader>
+      </div>
     </div>
   );
 }
