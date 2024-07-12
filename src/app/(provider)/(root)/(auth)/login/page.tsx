@@ -1,6 +1,7 @@
 'use client';
 
 import AuthAlert from '@/components/Auth/AuthAlert';
+import { LoadingCenter } from '@/components/common/Loading';
 import { useUserStore } from '@/zustand/userStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -49,7 +50,8 @@ function LoginPage() {
       setUser(id, email, nickname, profile_url, address);
       setTimeout(() => {
         router.push('/');
-      }, 1500);
+      }, 500);
+      return <LoadingCenter />;
     }
   };
 
