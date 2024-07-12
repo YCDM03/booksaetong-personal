@@ -45,18 +45,22 @@ function Header() {
     clearUser();
     setLogoutSuccess(true);
     setAuthAlert('로그아웃 되었습니다.');
+
+    currentPathName.includes('mypage') || currentPathName.includes('edit') || currentPathName.includes('post')
+      ? router.push('/login')
+      : null;
   };
 
   return (
-    <header className="flex justify-center w-full h-[70px] shadow-lg shadow-gray-100 box-border">
-      <div className="flex flex-row items-center justify-between lg:w-2/3 md:w-full">
-        <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={true} success={logoutSuccess} />
-        <div className="flex items-center">
+    <header className="flex w-screen h-[160px] min-w-[350px] lg:h-[70px] sm:h-[100px] shadow-lg shadow-gray-100 justify-center">
+      <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={true} success={logoutSuccess} />
+      <div className="flex  items-center   w-screen max-w-[1200px] lg:flex-row lg:justify-between flex-col justify-center sm:gap-4">
+        <div className="flex items-center gap-0 flex-col lg:flex-row sm:flex-row sm:gap-8 justify-center ">
           <Link href={'/'}>
             <h1 className="text-xl font-semibold cursor-pointer">북새통</h1>
           </Link>
           <nav>
-            <ul className="flex ml-20 cursor-pointer text-sm text-gray-600 gap-8">
+            <ul className="flex cursor-pointer text-sm text-gray-600 sm:gap-8 gap-3 min-w-[300px] justify-center">
               <Link href={'/list/all'}>전체도서목록</Link>
               <Link href={'/list/around'}>내 근처 도서</Link>
               {nickname ? (
@@ -69,8 +73,8 @@ function Header() {
             </ul>
           </nav>
         </div>
-        <div className="flex gap-x-3">
-          <form className="flex flex-row relative" onSubmit={onSubmit}>
+        <div className="flex sm:gap-x-3 sm:gap-y-0 sm:flex-row flex-col items-center gap-2">
+          <form className="flex flex-row relative justify-center" onSubmit={onSubmit}>
             <Image
               src={'/assets/img/Search.png'}
               width={25}
@@ -86,22 +90,27 @@ function Header() {
               className="w-[300px] h-fit py-2 pl-10 pr-5 rounded-md border text-sm focus:outline-none"
             />
           </form>
-          <Link href={'/signup'}>{nickname ? '' : <HeaderButton intent="signUp">회원가입</HeaderButton>}</Link>
-
-          {nickname ? (
-            <>
-              <Link href={'/post'}>
-                <HeaderButton intent="login">글쓰기</HeaderButton>
-              </Link>
-              <HeaderButton intent="logout" onClick={handleLogout}>
-                로그아웃
-              </HeaderButton>
-            </>
-          ) : (
-            <Link href={'/login'}>
-              <HeaderButton intent="login">로그인</HeaderButton>
-            </Link>
-          )}
+          <div>
+            {nickname ? (
+              <div className="flex w-[300px] justify-center sm:gap-2 sm:w-full gap-10 ">
+                <Link href={'/post'}>
+                  <HeaderButton intent="login">글쓰기</HeaderButton>
+                </Link>
+                <HeaderButton intent="logout" onClick={handleLogout}>
+                  로그아웃
+                </HeaderButton>
+              </div>
+            ) : (
+              <div className="flex w-[300px] justify-center sm:gap-2 sm:w-full gap-10 ">
+                <Link href={'/signup'}>
+                  <HeaderButton intent="signUp">회원가입</HeaderButton>
+                </Link>
+                <Link href={'/login'}>
+                  <HeaderButton intent="login">로그인</HeaderButton>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
