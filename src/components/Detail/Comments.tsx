@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/contexts/supabase.context';
 import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
+import EditCommentModal from './EditCommentModal';
+import DeleteCommentModal from './DeleteCommentModal';
 
 interface Comment {
   id: string;
@@ -28,6 +30,10 @@ interface CommentsProps {
 const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>('');
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [currentCommentId, setCurrentCommentId] = useState<string | null>(null);
+  const [currentCommentContent, setCurrentCommentContent] = useState('');
 
   const { id: loggedInUserId } = useUserStore((state) => ({
     id: state.id
@@ -89,59 +95,57 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
   };
 
   //삭제
-  const handleDelete = async (commentId: string) => {
-    try {
-      const confirmDelete = window.confirm('정말 삭제하시겠습니까?');
-      if (!confirmDelete) {
-        return;
+  const handleDelete = async () => {
+    if (currentCommentId) {
+      try {
+        await supabase.from('comments').delete().eq('id', currentCommentId);
+        setComments(comments.filter((comment) => comment.id !== currentCommentId));
+      } catch (error) {
+        console.error('댓글 삭제 오류:', error);
+      } finally {
+        setDeleteModalOpen(false);
+        setCurrentCommentId(null);
       }
-
-      await supabase.from('comments').delete().eq('id', commentId);
-      setComments(comments.filter((comment) => comment.id !== commentId));
-    } catch (error) {
-      console.error('댓글 삭제 오류:', error);
     }
   };
 
-  const handleUpdate = async (commentId: string) => {
-    try {
-      const commentToUpdate = comments.find((comment) => comment.id === commentId);
+  const openDeleteModal = (commentId: string) => {
+    setCurrentCommentId(commentId);
+    setDeleteModalOpen(true);
+  };
 
-      if (!commentToUpdate) {
-        throw new Error('댓글을 찾을 수 없습니다.');
+  //수정
+  const openEditModal = (commentId: string) => {
+    const commentToUpdate = comments.find((comment) => comment.id === commentId);
+    if (commentToUpdate) {
+      setCurrentCommentId(commentId);
+      setCurrentCommentContent(commentToUpdate.contents);
+      setEditModalOpen(true);
+    }
+  };
+
+  const handleEditSubmit = async (updatedContent: string) => {
+    if (currentCommentId) {
+      try {
+        const { data: updatedComment, error } = await supabase
+          .from('comments')
+          .update({ contents: updatedContent, updated_at: new Date().toISOString() })
+          .eq('id', currentCommentId)
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        setComments(comments.map((comment) => (comment.id === currentCommentId ? updatedComment : comment)));
+      } catch (error) {
+        console.error('댓글 수정 오류:', error);
+      } finally {
+        setEditModalOpen(false);
+        setCurrentCommentId(null);
+        setCurrentCommentContent('');
       }
-
-      const updatedContents = prompt('수정할 내용을 입력해주세요', commentToUpdate.contents);
-
-      if (updatedContents === null) {
-        // 사용자가 취소 버튼을 눌렀을 때
-        return;
-      }
-
-      // UI 즉시 반영
-      setComments(
-        comments.map((comment) =>
-          comment.id === commentId
-            ? { ...comment, contents: updatedContents, updated_at: new Date().toISOString() }
-            : comment
-        )
-      );
-
-      const { data: updatedComment, error } = await supabase
-        .from('comments')
-        .update({ contents: updatedContents, updated_at: new Date().toISOString() })
-        .eq('id', commentId)
-        .select()
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      // 실제 서버 데이터 반영 후 UI 업데이트
-      setComments(comments.map((comment) => (comment.id === commentId ? updatedComment : comment)));
-    } catch (error) {
-      console.error('댓글 업데이트 오류:', error);
     }
   };
 
@@ -216,10 +220,10 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
                 <p className="text-xs text-gray-400 mt-2">{formatTime(comment.created_at)}</p>
                 {loggedInUserId === comment.user_id && (
                   <div className="mt-4">
-                    <button onClick={() => handleUpdate(comment.id)} className="text-blue-500 hover:underline mr-2">
+                    <button onClick={() => openEditModal(comment.id)} className="text-blue-500 hover:underline mr-2">
                       수정
                     </button>
-                    <button onClick={() => handleDelete(comment.id)} className="text-red-500 hover:underline">
+                    <button onClick={() => openDeleteModal(comment.id)} className="text-red-500 hover:underline">
                       삭제
                     </button>
                   </div>
@@ -230,6 +234,21 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
           </div>
         ))}
       </div>
+
+      {/* 수정 모달 */}
+      <EditCommentModal
+        isOpen={isEditModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        initialContent={currentCommentContent}
+        onSubmit={handleEditSubmit}
+      />
+
+      {/* 삭제 확인 모달 */}
+      <DeleteCommentModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };

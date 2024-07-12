@@ -31,7 +31,21 @@ const config: Config = {
       animation: {
         shrink: 'shrink 3s linear forwards'
       }
-    }
+    },
+    screens: {
+      'xs': '480px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
+    gridTemplateColumns: {
+      'custom-1': 'repeat(1, 250px)',
+      'custom-2': 'repeat(2, 250px)',
+      'custom-3': 'repeat(3, 250px)',
+      'custom-4': 'repeat(4, 250px)',
+    },
   },
   plugins: []
 };
