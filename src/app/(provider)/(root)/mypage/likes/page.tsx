@@ -2,6 +2,7 @@
 import { myLikePost } from '@/api/myPageApi';
 import Loading from '@/components/common/Loading/LoadingCenter';
 import PostCard from '@/components/common/PostCard';
+import EmptyState from '@/components/EmptyState';
 import Page from '@/components/MyPage/Page';
 import { useUserStore } from '@/zustand/userStore';
 import { useQuery } from '@tanstack/react-query';
@@ -17,14 +18,18 @@ function LikePage() {
   });
 
   if (isPending) return <Loading />;
-
+  if (!likes) return <EmptyState empty="관심 목록이" isButtonExist={false} />;
   return (
     <Page title="관심목록">
-      <ul className="grid grid-cols-4 gap-5 w-full h-full mt-10">
-        {likes?.map((like) => {
-          return <PostCard key={like.id} post={like} />;
-        })}
-      </ul>
+      {likes.length > 0 ? (
+        <ul className="grid grid-cols-4 gap-5 w-full h-full mt-10">
+          {likes?.map((like) => {
+            return <PostCard key={like.id} post={like} />;
+          })}
+        </ul>
+      ) : (
+        <EmptyState empty="관심 목록이" isButtonExist={false} />
+      )}
     </Page>
   );
 }

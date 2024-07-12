@@ -5,7 +5,7 @@ interface buttonProps extends ComponentProps<'button'> {
   intent: 'default' | 'login' | 'logout' | 'signUp';
 }
 
-const buttonVariant = cva('rounded-md px-4 py-2.5 text-sm hover:brightness-90 active:brightness-75', {
+const buttonVariant = cva('h-10 rounded-md px-4 py-2.5 text-sm hover:brightness-90 active:brightness-75', {
   variants: {
     intent: {
       default: 'bg-main text-white',
