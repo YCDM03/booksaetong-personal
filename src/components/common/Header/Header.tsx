@@ -1,5 +1,6 @@
 'use client';
 
+import AuthAlert from '@/components/Auth/AuthAlert';
 import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
 import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
@@ -7,7 +8,6 @@ import Link from 'next/link';
 import { redirect, usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
-import AuthAlert from '@/components/Auth/AuthAlert';
 
 function Header() {
   const router = useRouter();
