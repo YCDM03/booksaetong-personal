@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 
-export const POST = async (request: Request, response: Response) => {
+export const POST = async (request: Request) => {
   const supabase = createClient();
   const formData = await request.formData();
 

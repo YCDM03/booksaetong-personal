@@ -44,7 +44,7 @@ function SignUpPage() {
     setAuthAlert('회원가입 완료! 로그인 페이지로 이동합니다.');
     setTimeout(() => {
       router.push('/login');
-    }, 1500);
+    }, 500);
   };
 
   return (
