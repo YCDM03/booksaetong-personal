@@ -66,14 +66,12 @@ const EditPage = ({ params }: { params: { id: string } }) => {
 
   // 폼 제출 처리
   const handleSubmit = async () => {
-    console.log('제목:', title);
-    console.log('카테고리:', category);
-    console.log('금액:', price);
-    console.log('내용:', contents);
-    console.log('주소:', address);
-    console.log('이미지:', images);
-    console.log('마커 위치:', markerPosition);
-
+    if (!title) return alert('제목이 없습니다.');
+    if (!category) return alert('카테고리를 선택하세요.');
+    if (!price) return alert('금액이 없습니다.');
+    if (!contents) return alert('내용이 없습니다.');
+    if (images.length === 0) return alert('사진을 등록하세요.');
+    if (!address) return alert('주소가 없습니다.');
     if (title && category && price && contents && address && images.length > 0) {
       if (confirm('작성을 완료하시겠습니까?')) {
         try {
@@ -141,8 +139,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
       } else {
         console.log('작성이 취소되었습니다.');
       }
-    } else {
-      alert('제목, 카테고리, 금액, 내용, 주소 및 사진을 모두 입력해주세요.');
     }
   };
 
@@ -258,7 +254,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
             </div>
 
             <div className="flex flex-col space-y-1">
-              {/* 금액 입력 필드 */}
               <label htmlFor="price" className="text-sm text-gray-700">
                 금액
               </label>
@@ -267,7 +262,15 @@ const EditPage = ({ params }: { params: { id: string } }) => {
                 id="price"
                 className="border border-gray-300 px-2 py-1"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d*$/.test(value) && value.length <= 10) {
+                    setPrice(value);
+                  } else {
+                    alert('숫자만 입력 가능합니다.');
+                  }
+                }}
+                maxLength={10}
               />
             </div>
 
