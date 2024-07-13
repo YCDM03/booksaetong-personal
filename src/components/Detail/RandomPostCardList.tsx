@@ -75,7 +75,7 @@ const RandomPostCardList = () => {
                     <p className="text-gray-600 text-xs">{post.address}</p>
                   </div>
                 </Link> */}
-                <PostCard />
+                <PostCard post={post} />
               </SwiperSlide>
             ))}
           </Swiper>

@@ -3,16 +3,14 @@ import { useRouter } from 'next/navigation';
 import SelectArea from '@/components/Auth/SignupPage/SelectArea';
 import AuthAlert from '@/components/Auth/AuthAlert';
 import { useState } from 'react';
+import { useHeaderAlertStore } from '@/zustand/alertStore';
 
 function SignUpPage() {
   const router = useRouter();
-
-  const [authAlert, setAuthAlert] = useState('');
-  const [signupSuccess, setSignupSuccess] = useState(false);
-
-  const closeAuthAlert = () => {
-    setAuthAlert('');
-  };
+  const { setSuccessAlert, setErrorAlert } = useHeaderAlertStore((state) => ({
+    setSuccessAlert: state.setSuccessAlert,
+    setErrorAlert: state.setErrorAlert
+  }));
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -23,13 +21,10 @@ function SignUpPage() {
     const subArea = formData.get('subArea') as string;
 
     if (!area) {
-      setSignupSuccess(false);
-      return setAuthAlert('지역을 선택해주세요');
+      return setErrorAlert('지역을 선택해주세요');
     } else if (!subArea) {
-      setSignupSuccess(false);
-      return setAuthAlert('시/군/구 를 선택해주세요');
+      return setErrorAlert('시/군/구 를 선택해주세요');
     }
-
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
       body: formData
@@ -37,19 +32,16 @@ function SignUpPage() {
     const { data, errorMsg } = await response.json();
     console.log(data);
     if (errorMsg === 'User already registered') {
-      setSignupSuccess(false);
-      return setAuthAlert('이미 가입된 유저입니다!');
+      return setErrorAlert('이미 가입된 유저입니다!');
     }
-    setSignupSuccess(true);
-    setAuthAlert('회원가입 완료! 로그인 페이지로 이동합니다.');
-    setTimeout(() => {
-      router.push('/login');
-    }, 500);
+
+    setSuccessAlert('회원가입 완료! 로그인 페이지로 이동합니다.', true, true);
+
+    router.push('/login');
   };
 
   return (
     <div className="max-w-screen h-screen pb-40 flex flex-col justify-center items-center content-center">
-      <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={false} success={signupSuccess} />
       <h2 className="font-bold text-3xl my-20">회원가입</h2>
       <form className="flex flex-col w-96  justify-center items-center content-center gap-10" onSubmit={handleSubmit}>
         <div className="flex flex-col">

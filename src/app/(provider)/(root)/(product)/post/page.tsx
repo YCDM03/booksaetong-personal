@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { NextPage } from 'next';
 import KakaoMap from '@/components/common/KakaoMap';
 import Image from 'next/image';
