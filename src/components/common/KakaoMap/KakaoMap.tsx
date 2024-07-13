@@ -13,7 +13,7 @@ type KakaoMapProps = {
   onMarkerAddressChange: (markerInfo: MarkerInfo) => void;
 };
 
-const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`;
+const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services`;
 
 const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
   const [map, setMap] = useState<kakao.maps.Map | null>(null);

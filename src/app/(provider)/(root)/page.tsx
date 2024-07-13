@@ -3,11 +3,13 @@ import { getAllPostList } from '@/api/mainApi';
 import Loading from '@/components/common/Loading/LoadingCenter';
 import PostCard from '@/components/common/PostCard';
 import PostList from '@/components/common/PostList';
+import SwiperButton from '@/components/common/Swiper/SwiperButton';
 import EmptyState from '@/components/EmptyState';
 import { Posts } from '@/types/Post.type';
 import { useUserStore } from '@/zustand/userStore';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { RiArrowLeftWideLine, RiArrowRightWideLine } from 'react-icons/ri';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Navigation } from 'swiper/modules';
@@ -32,7 +34,6 @@ function HomePage() {
     queryFn: getAllPostList
   });
 
-  console.log(allPosts);
   useEffect(() => {
     const located = allPosts?.filter((post) => {
       if (!address) return false;
@@ -47,33 +48,70 @@ function HomePage() {
 
   if (isPending) return <Loading />;
   return (
-    <div className="flex flex-col items-center max-w-[1024px] mx-auto my-10">
+    <div className="flex flex-col items-center max-w-[1024px] mx-auto my-10 box-border">
       <PostList title="전체도서목록">
-        <Swiper modules={[Navigation]} slidesPerView={4} navigation>
-          {allPosts?.map((post, index) => {
-            if (index > 9) return false;
-            return (
-              <SwiperSlide key={post.id}>
-                <PostCard post={post} />
-              </SwiperSlide>
-            );
-          })}
-        </Swiper>
+        <>
+          <Swiper
+            modules={[Navigation]}
+            slidesPerView={4}
+            spaceBetween={50}
+            navigation={{
+              nextEl: '.swiper-button-next-all-custom',
+              prevEl: '.swiper-button-prev-all-custom'
+            }}
+          >
+            {allPosts?.map((post, index) => {
+              if (index > 9) return false;
+              return (
+                <SwiperSlide key={post.id}>
+                  <PostCard post={post} />
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+          <SwiperButton intent="allRight">
+            <RiArrowRightWideLine size={40} color="white" />
+          </SwiperButton>
+          <SwiperButton intent="allLeft">
+            <RiArrowLeftWideLine size={40} color="white" />
+          </SwiperButton>
+        </>
       </PostList>
 
       <PostList title="내 근처 도서">
         {address ? (
-          locatedPosts && (
-            <Swiper className="w-full" modules={[Navigation]} slidesPerView={4} navigation>
-              {locatedPosts.map((post, index) => {
-                if (index > 9) return false;
-                return (
-                  <SwiperSlide key={post.id}>
-                    <PostCard post={post} />
-                  </SwiperSlide>
-                );
-              })}
-            </Swiper>
+          locatedPosts && locatedPosts.length > 0 ? (
+            <>
+              <Swiper
+                className="w-full"
+                modules={[Navigation]}
+                slidesPerView={4}
+                spaceBetween={50}
+                navigation={{
+                  nextEl: '.swiper-button-next-custom',
+                  prevEl: '.swiper-button-prev-custom'
+                }}
+              >
+                {locatedPosts.map((post, index) => {
+                  if (index > 9) return false;
+                  return (
+                    <SwiperSlide key={post.id}>
+                      <PostCard post={post} />
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+              <SwiperButton intent="areaRight">
+                <RiArrowRightWideLine size={40} color="white" />
+              </SwiperButton>
+              <SwiperButton intent="areaLeft">
+                <RiArrowLeftWideLine size={40} color="white" />
+              </SwiperButton>
+            </>
+          ) : (
+            <div className="flex w-full h-fit justify-center items-center">
+              <EmptyState empty="주소 근처에 도서가" isButtonExist={false} />
+            </div>
           )
         ) : (
           <div className="flex w-full h-fit justify-center items-center">

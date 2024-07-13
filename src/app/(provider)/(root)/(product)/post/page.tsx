@@ -25,11 +25,6 @@ const PostPage: NextPage = () => {
     id: state.id
   }));
 
-  // useEffec(() => {
-  //   const fetchProductData = async () => {
-  //     const { d };
-  //   };
-  // });
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
@@ -55,6 +50,10 @@ const PostPage: NextPage = () => {
     const newImages = [...images];
     newImages.splice(index, 1);
     setImages(newImages);
+
+    const newSelectedFiles = [...selectedFiles];
+    newSelectedFiles.splice(index, 1);
+    setSelectedFiles(newSelectedFiles);
   };
 
   const handleMarkerPositionChange = (position: { lat: number; lng: number; address: string }) => {
@@ -171,7 +170,7 @@ const PostPage: NextPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[800px] p-4 md:p-10">
+    <div className="flex flex-col h-auto p-2 md:p-28">
       {/* 전체 컨테이너 */}
 
       <div className="flex-grow relative border-2 border-bg-main rounded-lg flex flex-col p-4 md:p-10">
@@ -264,10 +263,22 @@ const PostPage: NextPage = () => {
                 type="file"
                 id="image"
                 accept="image/*"
-                className="border border-gray-400 px-2 py-1 rounded-md"
+                className="hidden "
                 multiple
                 onChange={handleImageUpload}
               />
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('image')?.click()}
+                  className="border border-gray-400 px-2 py-1 rounded-md bg-white"
+                >
+                  이미지 등록
+                </button>
+
+                <p className="text-sm text-gray-600">등록된 사진 수: {images.length}</p>
+              </div>
+
               <div className="mt-2 relative w-full">
                 {/* 이미지 미리보기 및 삭제 */}
                 {images.length > 4 && currentIndex > 0 && (

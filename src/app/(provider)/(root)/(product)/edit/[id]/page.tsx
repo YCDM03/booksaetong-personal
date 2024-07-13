@@ -7,8 +7,9 @@ import { supabase } from '@/contexts/supabase.context';
 import { v4 as uuidv4 } from 'uuid';
 import KakaoMap from '@/components/common/KakaoMap';
 import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/zustand/userStore';
 
-const EditPage: NextPage = ({ params }: { params: { id: string } }) => {
+const EditPage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
   const productId = params.id; // 상품 ID를 파라미터에서 가져옴
   const [images, setImages] = useState<string[]>([]);
@@ -21,37 +22,9 @@ const EditPage: NextPage = ({ params }: { params: { id: string } }) => {
   const [address, setAddress] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
-  useEffect(() => {
-    // 기존 상품 데이터 불러오기
-    const fetchProductData = async () => {
-      const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
-
-      if (error) {
-        console.error('상품 데이터 불러오기 오류:', error);
-      } else {
-        setTitle(data.title);
-        setCategory(data.category);
-        setPrice(data.price.toString());
-        setContents(data.contents);
-        setMarkerPosition({ latitude: data.latitude, longitude: data.longitude });
-        setAddress(data.address);
-      }
-
-      // 기존 이미지 데이터 불러오기
-      const { data: imageData, error: imageError } = await supabase
-        .from('product_images')
-        .select('image_url')
-        .eq('product_id', productId);
-
-      if (imageError) {
-        console.error('이미지 데이터 불러오기 오류:', imageError);
-      } else {
-        setImages(imageData.map((img) => img.image_url));
-      }
-    };
-
-    fetchProductData();
-  }, [productId]);
+  const { id } = useUserStore((state) => ({
+    id: state.id
+  }));
 
   // 이미지 업로드 함수
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,8 +166,45 @@ const EditPage: NextPage = ({ params }: { params: { id: string } }) => {
     return data.publicUrl;
   };
 
+  useEffect(() => {
+    // 기존 상품 데이터 불러오기
+    const fetchProductData = async () => {
+      const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
+
+      if (id !== data.user_id) {
+        router.push('/login');
+        return;
+      }
+
+      if (error) {
+        console.error('상품 데이터 불러오기 오류:', error);
+      } else {
+        setTitle(data.title);
+        setCategory(data.category);
+        setPrice(data.price.toString());
+        setContents(data.contents);
+        setMarkerPosition({ latitude: data.latitude, longitude: data.longitude });
+        setAddress(data.address);
+      }
+
+      // 기존 이미지 데이터 불러오기
+      const { data: imageData, error: imageError } = await supabase
+        .from('product_images')
+        .select('image_url')
+        .eq('product_id', productId);
+
+      if (imageError) {
+        console.error('이미지 데이터 불러오기 오류:', imageError);
+      } else {
+        setImages(imageData.map((img) => img.image_url));
+      }
+    };
+
+    fetchProductData();
+  }, [productId]);
+
   return (
-    <div className="flex flex-col h-[800px] p-4 md:p-10">
+    <div className="flex flex-col h-auto p-2 md:p-28">
       {/* 전체 컨테이너 */}
 
       <div className="flex-grow relative border-2 border-bg-main rounded-lg flex flex-col p-4 md:p-10">
@@ -202,7 +212,7 @@ const EditPage: NextPage = ({ params }: { params: { id: string } }) => {
 
         <div className="mb-6">
           {/* 제목 */}
-          <p className="text-xl font-bold text-gray-800">판매등록하기</p>
+          <p className="text-xl font-bold text-gray-800">내 글 수정하기</p>
         </div>
 
         <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
@@ -287,10 +297,22 @@ const EditPage: NextPage = ({ params }: { params: { id: string } }) => {
                 type="file"
                 id="image"
                 accept="image/*"
-                className="border border-gray-400 px-2 py-1 rounded-md"
+                className="hidden "
                 multiple
                 onChange={handleImageUpload}
               />
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('image')?.click()}
+                  className="border border-gray-400 px-2 py-1 rounded-md bg-white"
+                >
+                  이미지 등록
+                </button>
+
+                <p className="text-sm text-gray-600">등록된 사진 수: {images.length}</p>
+              </div>
+
               <div className="mt-2 relative w-full">
                 {/* 이미지 미리보기 및 삭제 */}
                 {images.length > 4 && currentIndex > 0 && (
@@ -345,7 +367,7 @@ const EditPage: NextPage = ({ params }: { params: { id: string } }) => {
             onClick={handleSubmit}
             className="px-4 py-2 bg-main text-white rounded-md shadow hover:bg-hover focus:outline-none"
           >
-            작성 완료
+            수정 완료
           </button>
         </div>
       </div>
