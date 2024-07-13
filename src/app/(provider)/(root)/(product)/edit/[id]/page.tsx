@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { NextPage } from 'next';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/contexts/supabase.context';
 import { v4 as uuidv4 } from 'uuid';
@@ -167,7 +166,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     const fetchProductData = async () => {
       const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
 
-      if (id !== data.user_id) {
+      if (id !== null && id !== undefined && id !== data.user_id) {
         router.push('/login');
         return;
       }
@@ -175,6 +174,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
       if (error) {
         console.error('상품 데이터 불러오기 오류:', error);
       } else {
+        debugger;
         setTitle(data.title);
         setCategory(data.category);
         setPrice(data.price.toString());
@@ -357,7 +357,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
                 <div className="mt-4">
                   {/* 거래 희망 위치 */}
                   <p className="text-gray-600">거래 희망 위치</p>
-                  <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} />
+                  <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} test={markerPosition} />
                 </div>
               </div>
             </div>

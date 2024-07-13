@@ -11,11 +11,12 @@ type MarkerInfo = {
 
 type KakaoMapProps = {
   onMarkerAddressChange: (markerInfo: MarkerInfo) => void;
+  test?: { latitude: number; longitude: number };
 };
 
-const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services`;
+const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`;
 
-const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
+const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, test }) => {
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [center, setCenter] = useState({ lat: 37.566826, lng: 126.9786567 });
   const [markerPosition, setMarkerPosition] = useState({ lat: 37.566826, lng: 126.9786567 });
@@ -41,15 +42,21 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
 
           const sw = bounds.getSouthWest();
           const ne = bounds.getNorthEast();
+          debugger;
           const newCenter = {
             lat: (sw.getLat() + ne.getLat()) / 2,
             lng: (sw.getLng() + ne.getLng()) / 2
           };
-          setCenter(newCenter);
-          setMarkerPosition(newCenter);
 
-          geocodeAndSetMarkerAddress(newCenter.lat, newCenter.lng);
-
+          if (test) {
+            setCenter({ lat: test.latitude, lng: test.longitude });
+            setMarkerPosition({ lat: test.latitude, lng: test.longitude });
+            geocodeAndSetMarkerAddress(test.latitude, test.longitude);
+          } else {
+            setCenter(newCenter);
+            setMarkerPosition(newCenter);
+            geocodeAndSetMarkerAddress(newCenter.lat, newCenter.lng);
+          }
           map.setLevel(3);
         }
       });
@@ -60,7 +67,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
     return () => {
       document.head.removeChild(kakaoScript);
     };
-  }, [map, address]);
+  }, [map, address, test]);
 
   useEffect(() => {
     if (!map) return;
@@ -112,7 +119,11 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
 
     geocodeAndSetMarkerAddress(position.getLat(), position.getLng());
 
-    onMarkerAddressChange({ lat: position.getLat(), lng: position.getLng(), address: markerAddress });
+    onMarkerAddressChange({
+      lat: position.getLat(),
+      lng: position.getLng(),
+      address: markerAddress
+    });
   };
 
   return (
