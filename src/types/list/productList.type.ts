@@ -19,6 +19,6 @@ export type Product = {
 };
 
 export type pageProductListType = {
-  productList: [Product];
+  productList: Product[] | undefined;
   nextPage: number | undefined;
 };

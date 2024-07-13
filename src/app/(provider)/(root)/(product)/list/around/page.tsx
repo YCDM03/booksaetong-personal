@@ -2,14 +2,15 @@
 
 import ProductList from '@/components/list/ProductList';
 import React, { useEffect, useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
 import { getGroundProductList } from '@/api/listApi';
-import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
+import useSearchStore, { SearchStoreType } from '@/zustand/searchStore';
 import { useUserStore } from '@/zustand/userStore';
 import ProductListHeader from '@/components/list/ProductListHeader';
 import ProductListEmpty from '@/components/list/ProductListEmpty';
 import { LoadingTop } from '@/components/common/Loading';
 import { useRouter } from 'next/navigation';
+import { pageProductListType } from '@/types/list/productList.type';
 
 function ListOfAroundPage() {
   const { userAddress } = useUserStore((state) => ({
@@ -19,10 +20,15 @@ function ListOfAroundPage() {
   const {
     search: { keyword },
     setKeyword
-  } = useSearchStore<searchStoreType>((state) => state);
+  } = useSearchStore<SearchStoreType>((state) => state);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery({
-    initialData: undefined,
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery<
+    pageProductListType,
+    Error,
+    InfiniteData<pageProductListType>,
+    [string, { keyword: string; requestAddress: string; requestLimit: number }],
+    number | undefined
+  >({
     initialPageParam: undefined,
     queryKey: [
       'productList',
@@ -66,15 +72,12 @@ function ListOfAroundPage() {
     <div className={'px-10 max-w-[1024px] mx-auto sm:mx-0 md:w-[550px] lg:w-[1024px]'}>
       <div className={'flex flex-col'}>
         <ProductListHeader title={'내 근처 도서목록'} keyword={keyword} address={address}>
-          {data?.pages[0].productList.length !== 0 ? (
-            <ProductList pageList={data?.pages} />
-          ) : (
-            <ProductListEmpty />
-          )}
-          {isFetchingNextPage &&
+          {data?.pages[0].productList.length !== 0 ? <ProductList pageList={data?.pages} /> : <ProductListEmpty />}
+          {isFetchingNextPage && (
             <div className={'flex justify-start w-full mt-[100px]'}>
               <LoadingTop></LoadingTop>
-            </div>}
+            </div>
+          )}
         </ProductListHeader>
       </div>
     </div>
