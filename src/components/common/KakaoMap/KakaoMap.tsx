@@ -11,7 +11,7 @@ type MarkerInfo = {
 
 type KakaoMapProps = {
   onMarkerAddressChange: (markerInfo: MarkerInfo) => void;
-  initialPosition?: { latitude: number; longitude: number }; // 초기 마커 위치
+  initialPosition?: { latitude: number; longitude: number };
 };
 
 const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}`;
