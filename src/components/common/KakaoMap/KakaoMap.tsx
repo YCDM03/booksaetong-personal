@@ -13,7 +13,7 @@ type KakaoMapProps = {
   onMarkerAddressChange: (markerInfo: MarkerInfo) => void;
 };
 
-const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`;
+const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services`;
 
 const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
@@ -118,7 +118,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange }) => {
   return (
     <>
       <Script src={KAKAO_SDK_URL} strategy="beforeInteractive" />
-      <Map center={center} style={{ width: '534px', height: '253px' }} level={3} onCreate={setMap}>
+      <Map center={center} style={{ width: '100%', height: '0', paddingBottom: '39.53%' }} level={3} onCreate={setMap}>
         {map && (
           <MapMarker position={markerPosition} draggable={true} onDragEnd={(target) => handleMarkerDragEnd(target)} />
         )}

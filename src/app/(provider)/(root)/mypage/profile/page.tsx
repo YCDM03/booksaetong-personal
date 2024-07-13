@@ -13,7 +13,6 @@ import SelectArea from '@/components/Auth/SignupPage/SelectArea';
 function ProfilePage() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | ArrayBuffer | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [notification, setNotification] = useState('');
   const { id, nickname, address, profile_url, setUser } = useUserStore();
   const [isLoading, setIsLoading] = useState(true);
@@ -99,6 +98,31 @@ function ProfilePage() {
     setModalOpen(false);
   };
 
+  const handleImageResetClick = async () => {
+    const defaultImageUrl = '/assets/img/profile-Image.png';
+
+    // 기존 이미지 삭제
+    if (profile_url) {
+      const oldFileName = profile_url.split('/').pop();
+      if (oldFileName) {
+        await supabase.storage.from('avatars').remove([`profiles/${id}/${oldFileName}`]);
+      }
+    }
+
+    const { error: updateError } = await supabase.from('users').update({ profile_url: defaultImageUrl }).eq('id', id);
+    if (updateError) {
+      console.error('프로필 URL을 업데이트하는 중 오류:', updateError);
+      return;
+    }
+
+    // Zustand 스토어 업데이트
+    if (id) {
+      setUser(id, useUserStore.getState().email!, localNickname, defaultImageUrl, localAddress);
+    }
+    setNotification('기본 이미지가 적용되었습니다.');
+    setSelectedImage(defaultImageUrl);
+  };
+
   const handleSave = async () => {
     if (id) {
       const newAddress = `${localArea} ${localSubArea}`.trim();
@@ -156,12 +180,18 @@ function ProfilePage() {
             </div>
             <button
               onClick={openModal}
-              className="text-sm mt-1 text-gray-600 border-solid border-2 rounded-md hover:bg-hover w-48 h-9"
+              className="text-xs mt-1 text-gray-600 border-solid border-2 rounded-md hover:bg-hover w-48 h-8"
             >
               프로필사진 변경
             </button>
+            <button
+              onClick={handleImageResetClick}
+              className="text-xs mt-1 text-gray-600 border-solid border-2 rounded-md hover:bg-hover w-48 h-8"
+            >
+              기본이미지 적용
+            </button>
           </div>
-          <div className="mt-6">
+          <div className="mt-6 w-full max-w-[12rem] md:max-w-full mx-auto">
             <div className="mb-4">
               <label htmlFor="nickname" className="block text-sm font-medium text-gray-700">
                 닉네임
@@ -171,7 +201,7 @@ function ProfilePage() {
                 id="nickname"
                 value={localNickname}
                 onChange={(e) => setLocalNickname(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-400"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-400 box-border"
               />
             </div>
             <label htmlFor="nickname" className="block mb-1 text-sm font-medium text-gray-700">

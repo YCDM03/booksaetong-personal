@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
 
 export const POST = async (request: Request) => {
   const supabase = createClient();
@@ -14,10 +15,12 @@ export const POST = async (request: Request) => {
       }
     }
   });
+
   if (error) {
     console.log('error message:', error?.message);
   }
-  // public.users 테이블에 유저 정보 추가는 트리거를 통해 처리
 
+  cookies().delete('sb-wwqtgagcybxbzyouattn-auth-token');
+  cookies().delete('sb-wwqtgagcybxbzyouattn-auth-token-code-verifier');
   return Response.json({ data, errorMsg: error?.message || null });
 };

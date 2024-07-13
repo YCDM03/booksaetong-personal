@@ -4,7 +4,6 @@ import { Posts } from '@/types/Post.type';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import Link from 'next/link';
 import Image from 'next/image';
-import PostCard from '../common/PostCard';
 
 const RandomPostCardList = () => {
   const [allPosts, setAllPosts] = useState<Posts[]>([]);
@@ -75,7 +74,6 @@ const RandomPostCardList = () => {
                     <p className="text-gray-600 text-xs">{post.address}</p>
                   </div>
                 </Link>
-                {/* <PostCard/> */}
               </SwiperSlide>
             ))}
           </Swiper>
