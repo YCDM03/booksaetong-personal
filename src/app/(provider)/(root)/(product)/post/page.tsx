@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import KakaoMap from '@/components/common/KakaoMap';
 import Image from 'next/image';
@@ -50,6 +50,10 @@ const PostPage: NextPage = () => {
     const newImages = [...images];
     newImages.splice(index, 1);
     setImages(newImages);
+
+    const newSelectedFiles = [...selectedFiles];
+    newSelectedFiles.splice(index, 1);
+    setSelectedFiles(newSelectedFiles);
   };
 
   const handleMarkerPositionChange = (position: { lat: number; lng: number; address: string }) => {
@@ -166,131 +170,165 @@ const PostPage: NextPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[800px]">
-      <div className="flex-grow relative border-2 border-bg-main mx-20 mt-10 mb-2 rounded-lg flex flex-col">
-        <div className="absolute top-4 left-4 z-10">
+    <div className="flex flex-col h-auto p-2 md:p-28">
+      {/* 전체 컨테이너 */}
+
+      <div className="flex-grow relative border-2 border-bg-main rounded-lg flex flex-col p-4 md:p-10">
+        {/* 판매 등록 폼 컨테이너 */}
+
+        <div className="mb-6">
+          {/* 제목 */}
           <p className="text-xl font-bold text-gray-800">판매등록하기</p>
         </div>
-        <div className="absolute top-20 left-5 z-10 w-1/3 space-y-4">
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="title" className="text-sm text-gray-700">
-              제목
-            </label>
-            <input
-              type="text"
-              id="title"
-              className="border border-gray-300 px-2 py-1"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="category" className="text-sm text-gray-700">
-              카테고리
-            </label>
-            <select
-              id="category"
-              className="border border-gray-300 px-2 py-1"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="">카테고리를 선택하세요</option>
-              <option value="경제경영">경제경영</option>
-              <option value="만화">만화</option>
-              <option value="사회과학">사회과학</option>
-              <option value="소설/시/희곡">소설/시/희곡</option>
-              <option value="어린이">어린이</option>
-              <option value="에세이">에세이</option>
-              <option value="유아">유아</option>
-              <option value="인문학">인문학</option>
-              <option value="기타">기타</option>
-            </select>
+
+        <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
+          {/* 왼쪽 폼 필드 컨테이너 */}
+
+          <div className="flex flex-col w-full md:w-1/2 space-y-4">
+            <div className="flex flex-col space-y-1">
+              {/* 제목 입력 필드 */}
+              <label htmlFor="title" className="text-sm text-gray-700">
+                제목
+              </label>
+              <input
+                type="text"
+                id="title"
+                className="border border-gray-300 px-2 py-1"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              {/* 카테고리 선택 필드 */}
+              <label htmlFor="category" className="text-sm text-gray-700">
+                카테고리
+              </label>
+              <select
+                id="category"
+                className="border border-gray-300 px-2 py-1"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="">카테고리를 선택하세요</option>
+                <option value="경제경영">경제경영</option>
+                <option value="만화">만화</option>
+                <option value="사회과학">사회과학</option>
+                <option value="소설/시/희곡">소설/시/희곡</option>
+                <option value="어린이">어린이</option>
+                <option value="에세이">에세이</option>
+                <option value="유아">유아</option>
+                <option value="인문학">인문학</option>
+                <option value="기타">기타</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              {/* 금액 입력 필드 */}
+              <label htmlFor="price" className="text-sm text-gray-700">
+                금액
+              </label>
+              <input
+                type="text"
+                id="price"
+                className="border border-gray-300 px-2 py-1"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              {/* 내용 입력 필드 */}
+              <label htmlFor="contents" className="text-sm text-gray-700">
+                내용
+              </label>
+              <textarea
+                id="contents"
+                rows={4}
+                className="border border-gray-300 px-2 py-1"
+                value={contents}
+                onChange={(e) => setContents(e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="price" className="text-sm text-gray-700">
-              금액
-            </label>
-            <input
-              type="text"
-              id="price"
-              className="border border-gray-300 px-2 py-1"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="contents" className="text-sm text-gray-700">
-              내용
-            </label>
-            <textarea
-              id="contents"
-              rows={4}
-              className="border border-gray-300 px-2 py-1"
-              value={contents}
-              onChange={(e) => setContents(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="absolute top-20 right-16 z-10 w-538">
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="image" className="text-sm text-gray-600">
-              사진 등록
-            </label>
-            <input
-              type="file"
-              id="image"
-              accept="image/*"
-              className="border border-gray-400 px-2 py-1 rounded-md"
-              multiple
-              onChange={handleImageUpload}
-            />
-            <div className="mt-2 relative" style={{ width: '538px' }}>
-              {images.length > 4 && currentIndex > 0 && (
+          {/* 오른쪽 이미지 업로드 및 지도 컨테이너 */}
+          <div className="flex flex-col w-full md:w-1/2 space-y-4">
+            <div className="flex flex-col space-y-1">
+              {/* 이미지 업로드 필드 */}
+              <label htmlFor="image" className="text-sm text-gray-600">
+                사진 등록
+              </label>
+              <input
+                type="file"
+                id="image"
+                accept="image/*"
+                className="hidden "
+                multiple
+                onChange={handleImageUpload}
+              />
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={handlePrevious}
-                  className="absolute left-0 top-1/2 transform -translate-y-1/2 p-1 bg-transparent focus:outline-none"
+                  type="button"
+                  onClick={() => document.getElementById('image')?.click()}
+                  className="border border-gray-400 px-2 py-1 rounded-md bg-white"
                 >
-                  {'<'}
+                  이미지 등록
                 </button>
-              )}
-              <div className="flex space-x-0">
-                {[...Array(4)].map((_, index) => (
-                  <div key={index} className="w-40 h-32 border border-gray-300 rounded-md overflow-hidden">
-                    {images[currentIndex + index] && (
-                      <div className="relative" onClick={() => handleImageClick(currentIndex + index)}>
-                        <Image
-                          src={images[currentIndex + index]}
-                          alt={`preview-${index}`}
-                          width={300}
-                          height={300}
-                          className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm cursor-pointer hover:bg-opacity-70">
-                          삭제
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+
+                <p className="text-sm text-gray-600">등록된 사진 수: {images.length}</p>
               </div>
-              {currentIndex < images.length - 4 && (
-                <button
-                  onClick={handleNext}
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 p-1 bg-transparent focus:outline-none"
-                >
-                  {'>'}
-                </button>
-              )}
-              <div className="absolute top-44 bottom-0 left-0 right-0 z-0">
-                <p className="text-gray-600">거래 희망 위치</p>
-                <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} />
+
+              <div className="mt-2 relative w-full">
+                {/* 이미지 미리보기 및 삭제 */}
+                {images.length > 4 && currentIndex > 0 && (
+                  <button
+                    onClick={handlePrevious}
+                    className="absolute left-0 top-1/2 transform -translate-y-1/2 p-1 bg-transparent focus:outline-none"
+                  >
+                    {'<'}
+                  </button>
+                )}
+                <div className="flex space-x-0 overflow-x-auto">
+                  {[...Array(4)].map((_, index) => (
+                    <div key={index} className="w-40 h-32 border border-gray-300 rounded-md overflow-hidden">
+                      {images[currentIndex + index] && (
+                        <div className="relative" onClick={() => handleImageClick(currentIndex + index)}>
+                          <Image
+                            src={images[currentIndex + index]}
+                            alt={`preview-${index}`}
+                            width={300}
+                            height={300}
+                            className="object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm cursor-pointer hover:bg-opacity-70">
+                            삭제
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {currentIndex < images.length - 4 && (
+                  <button
+                    onClick={handleNext}
+                    className="absolute right-0 top-1/2 transform -translate-y-1/2 p-1 bg-transparent focus:outline-none"
+                  >
+                    {'>'}
+                  </button>
+                )}
+                <div className="mt-4">
+                  {/* 거래 희망 위치 */}
+                  <p className="text-gray-600">거래 희망 위치</p>
+                  <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-4 right-4 z-10">
+        <div className="mt-6 flex justify-end">
+          {/* 작성 완료 버튼 */}
           <button
             onClick={handleSubmit}
             className="px-4 py-2 bg-main text-white rounded-md shadow hover:bg-hover focus:outline-none"
@@ -298,7 +336,6 @@ const PostPage: NextPage = () => {
             작성 완료
           </button>
         </div>
-        <hr className="border-t-2 border-gray mt-14 mb-8" />
       </div>
     </div>
   );
