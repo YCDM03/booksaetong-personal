@@ -1,23 +1,61 @@
 import { pageProductListType, ProductListType } from '@/types/list/productList.type';
 
-export const getAllProductList = async ({
-                                          pageParam = 0,
-                                          queryKey
-                                        }): Promise<pageProductListType> => {
-  const [_, { keyword, requestCategoryList, requestLimit }] = queryKey;
+type AllProductLisTtype = {
+  pageParam: number;
+  queryKey: [
+    string,
+    {
+      keyword: string;
+      requestCategoryList: string[];
+      requestLimit: number;
+    }
+  ];
+};
 
-  const queryParams = new URLSearchParams({
+type GroundProductList = {
+  pageParam?: number;
+  queryKey: [string, { keyword: string; requestAddress: string; requestLimit: number }];
+};
+
+type QueryKeyType = [
+  string,
+  {
+    keyword: string;
+    requestCategoryList: string[];
+    requestLimit: number;
+  }
+];
+
+export const getAllProductList = async ({
+  pageParam = 0,
+  queryKey
+}: AllProductLisTtype): Promise<pageProductListType> => {
+  const [_, { keyword, requestCategoryList, requestLimit }]: QueryKeyType = queryKey;
+
+  const params: {
+    keyword: string;
+    categoryList: string;
+    requestLimit: number;
+    requestOffset: number;
+  } = {
     keyword,
     categoryList: JSON.stringify(requestCategoryList),
     requestLimit: requestLimit,
     requestOffset: requestLimit * pageParam
+  };
+
+  const queryParams = new URLSearchParams({
+    keyword: params.keyword,
+    categoryList: params.categoryList,
+    requestLimit: params.requestLimit.toString(),
+    requestOffset: params.requestOffset.toString()
   });
 
   const response = await fetch(`/api/list/all?${queryParams.toString()}`);
-  const ProductList: ProductListType[] = await response.json();
+  const productList: ProductListType[] = await response.json();
 
   return {
-    productList: ProductList.map(product => {
+    productList: productList.map((product) => {
       return {
         id: product.id,
         title: product.title,
@@ -26,29 +64,40 @@ export const getAllProductList = async ({
         product_images: Array.of({ image_url: product.image_url })
       };
     }),
-    nextPage: ProductList.length === requestLimit ? pageParam + 1 : undefined
+    nextPage: productList.length === requestLimit ? pageParam + 1 : undefined
   };
 };
 
 export const getGroundProductList = async ({
-                                             pageParam = 0,
-                                             queryKey
-                                           }): Promise<pageProductListType> => {
+  pageParam = 0,
+  queryKey
+}: GroundProductList): Promise<pageProductListType> => {
   const [_, { keyword, requestAddress, requestLimit }] = queryKey;
 
-  const queryParams = new URLSearchParams({
+  const params: {
+    keyword: string;
+    requestAddress: string;
+    requestLimit: number;
+    requestOffset: number;
+  } = {
     keyword,
-    requestLimit,
-    requestAddress,
+    requestAddress: requestAddress,
+    requestLimit: requestLimit,
     requestOffset: requestLimit * pageParam
-  });
+  };
 
+  const queryParams = new URLSearchParams({
+    keyword: params.keyword,
+    requestLimit: params.requestLimit.toString(),
+    requestAddress: params.requestAddress,
+    requestOffset: params.requestOffset.toString()
+  });
 
   const response = await fetch(`/api/list/around?${queryParams.toString()}`);
   const ProductList: ProductListType[] = await response.json();
 
   return {
-    productList: ProductList.map(product => {
+    productList: ProductList.map((product) => {
       return {
         id: product.id,
         title: product.title,

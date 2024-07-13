@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { NextPage } from 'next';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/contexts/supabase.context';
 import { v4 as uuidv4 } from 'uuid';
 import KakaoMap from '@/components/common/KakaoMap';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/zustand/userStore';
+import { Notification } from '@/components/common/Alert';
 
 const EditPage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
-  const productId = params.id; // 상품 ID를 파라미터에서 가져옴
+  const productId = params.id;
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [title, setTitle] = useState('');
@@ -21,7 +21,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
   const [markerPosition, setMarkerPosition] = useState({ latitude: 0, longitude: 0 });
   const [address, setAddress] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
+  const [notification, setNotification] = useState({ message: '', type: '' });
   const { id } = useUserStore((state) => ({
     id: state.id
   }));
@@ -66,13 +66,18 @@ const EditPage = ({ params }: { params: { id: string } }) => {
 
   // 폼 제출 처리
   const handleSubmit = async () => {
-    if (!title) return alert('제목이 없습니다.');
-    if (!category) return alert('카테고리를 선택하세요.');
-    if (!price) return alert('금액이 없습니다.');
-    if (!contents) return alert('내용이 없습니다.');
-    if (images.length === 0) return alert('사진을 등록하세요.');
-    if (!address) return alert('주소가 없습니다.');
+    if (!title) return setNotification({ message: '제목이 없습니다.', type: 'error' });
+    if (!category) return setNotification({ message: '카테고리를 선택하세요.', type: 'error' });
+    if (!price) return setNotification({ message: '금액이 없습니다.', type: 'error' });
+    if (!contents) return setNotification({ message: '내용이 없습니다.', type: 'error' });
+    if (images.length === 0) return setNotification({ message: '사진을 등록하세요.', type: 'error' });
+    if (!address) return setNotification({ message: '주소가 없습니다.', type: 'error' });
     if (title && category && price && contents && address && images.length > 0) {
+      let imageUrls = images;
+      if (selectedFiles.length > 0) {
+        // 새 이미지가 있을 경우 업로드
+        imageUrls = await Promise.all(selectedFiles.map((file) => imageUpload(file)));
+      }
       if (confirm('작성을 완료하시겠습니까?')) {
         try {
           // 기존 상품 업데이트
@@ -93,18 +98,19 @@ const EditPage = ({ params }: { params: { id: string } }) => {
             throw updateError;
           }
 
-          console.log('상품 데이터를 업데이트했습니다:', productId);
-
+          setNotification({ message: '상품 데이터가 성공적으로 업데이트되었습니다.', type: 'success' });
           // 이미지 데이터 업로드 및 업데이트
           const imageUrls = await Promise.all(selectedFiles.map((file) => imageUpload(file)));
           if (imageUrls.length !== selectedFiles.length) {
             throw new Error('이미지 업로드 중 문제가 발생했습니다.');
           }
 
-          const { error: deleteError } = await supabase.from('product_images').delete().eq('product_id', productId);
+          if (selectedFiles.length > 0) {
+            const { error: deleteError } = await supabase.from('product_images').delete().eq('product_id', productId);
 
-          if (deleteError) {
-            throw deleteError;
+            if (deleteError) {
+              throw deleteError;
+            }
           }
 
           const imageInsertData = imageUrls.map((imageUrl) => ({
@@ -134,7 +140,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
           console.log('모든 데이터 저장을 완료했습니다.');
           router.push('/');
         } catch (error) {
-          console.error('데이터 저장 중 오류 발생:', error.message);
+          console.error('데이터 저장 중 오류 발생:', onmessage);
         }
       } else {
         console.log('작성이 취소되었습니다.');
@@ -167,7 +173,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     const fetchProductData = async () => {
       const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
 
-      if (id !== data.user_id) {
+      if (id !== null && id !== undefined && id !== data.user_id) {
         router.push('/login');
         return;
       }
@@ -175,6 +181,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
       if (error) {
         console.error('상품 데이터 불러오기 오류:', error);
       } else {
+        debugger;
         setTitle(data.title);
         setCategory(data.category);
         setPrice(data.price.toString());
@@ -197,7 +204,11 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     };
 
     fetchProductData();
-  }, [productId]);
+  }, [productId, id]);
+
+  const closeNotification = () => {
+    setNotification({ message: '', type: '' });
+  };
 
   return (
     <div className="flex flex-col h-auto p-2 md:p-28">
@@ -357,7 +368,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
                 <div className="mt-4">
                   {/* 거래 희망 위치 */}
                   <p className="text-gray-600">거래 희망 위치</p>
-                  <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} />
+                  <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} initialPosition={markerPosition} />
                 </div>
               </div>
             </div>
@@ -374,6 +385,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
           </button>
         </div>
       </div>
+      {notification.message && <Notification message={notification.message} onClose={closeNotification} />}
     </div>
   );
 };
