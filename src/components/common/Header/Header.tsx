@@ -8,21 +8,22 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
+import { useHeaderAlertStore } from '@/zustand/alertStore';
 
 function Header() {
+  const { message, forLogin, success, setSuccessAlert, clearAlert } = useHeaderAlertStore((state) => ({
+    message: state.message,
+    forLogin: state.forLogin,
+    success: state.success,
+    setSuccessAlert: state.setSuccessAlert,
+    clearAlert: state.clearAlert
+  }));
   const router = useRouter();
   const currentPathName = usePathname();
   const { nickname, clearUser } = useUserStore((state) => ({
     nickname: state.nickname,
     clearUser: state.clearUser
   }));
-
-  const [authAlert, setAuthAlert] = useState('');
-  const [logoutSuccess, setLogoutSuccess] = useState(false);
-
-  const closeAuthAlert = () => {
-    setAuthAlert('');
-  };
 
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const { setKeyword } = useSearchStore<searchStoreType>((state) => state);
@@ -43,8 +44,7 @@ function Header() {
       method: 'POST'
     });
     clearUser();
-    setLogoutSuccess(true);
-    setAuthAlert('로그아웃 되었습니다.');
+    setSuccessAlert('로그아웃 되었습니다.', false, true);
 
     currentPathName.includes('mypage') || currentPathName.includes('edit') || currentPathName.includes('post')
       ? router.push('/login')
@@ -53,7 +53,7 @@ function Header() {
 
   return (
     <header className="flex w-screen h-[160px] min-w-[350px] lg:h-[70px] sm:h-[100px] shadow-lg shadow-gray-100 justify-center">
-      <AuthAlert message={authAlert} onClose={closeAuthAlert} forLogin={true} success={logoutSuccess} />
+      <AuthAlert message={message} onClose={clearAlert} forLogin={forLogin} success={success} />
       <div className="flex  items-center   w-screen max-w-[1200px] lg:flex-row lg:justify-between flex-col justify-center sm:gap-4">
         <div className="flex items-center gap-0 flex-col lg:flex-row sm:flex-row sm:gap-8 justify-center ">
           <Link href={'/'}>

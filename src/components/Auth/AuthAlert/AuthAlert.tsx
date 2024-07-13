@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 interface AuthAlertProps {
-  message: string;
+  message: string | null;
   onClose: () => void;
   forLogin: boolean;
   success: boolean;
