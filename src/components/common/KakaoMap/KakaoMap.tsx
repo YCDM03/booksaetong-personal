@@ -133,7 +133,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
 
   return (
     <>
-      <Script src={KAKAO_SDK_URL} strategy="beforeInteractive" />
+      <Script src={KAKAO_SDK_URL} strategy="afterInteractive" />;
       <Map center={center} style={{ width: '100%', height: '0', paddingBottom: '39.53%' }} level={3} onCreate={setMap}>
         {map && (
           <MapMarker position={markerPosition} draggable={true} onDragEnd={(target) => handleMarkerDragEnd(target)} />
