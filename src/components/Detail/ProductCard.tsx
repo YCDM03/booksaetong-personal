@@ -3,11 +3,11 @@ import SwiperSlider from '../common/Swiper/Slider';
 import Link from 'next/link';
 import { HeartIcon } from '@heroicons/react/outline';
 import { supabase } from '@/contexts/supabase.context';
-
 import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
 import Loading from '../common/Loading/LoadingCenter';
 import { Product } from '@/api/detail/allProducts';
+import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
   products: Product[];
@@ -19,6 +19,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
   const [userEmail, setUserEmail] = useState('');
   const [userProfileUrl, setUserProfileUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const { id: loggedInUserId } = useUserStore((state) => ({
     id: state.id
@@ -36,11 +37,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
             .single();
 
           if (error) {
-            // 데이터가 없거나 다른 오류가 발생했을 때 무시하고, liked 상태를 false로 설정
             if (error.code === 'PGRST116') {
               setLiked(false);
             } else {
-              throw error; // 다른 오류는 그대로 처리
+              throw error;
             }
           } else if (data) {
             setLiked(true);
@@ -109,6 +109,35 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
     return `${formatted}원`;
   };
 
+  const handleDelete = async (productId: string) => {
+    if (!confirm('정말로 이 글을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      if (productImages[productId]) {
+        for (const imageUrl of productImages[productId]) {
+          const { error: deleteError } = await supabase.storage
+            .from('avatars')
+            .remove([`products/${imageUrl.split('/').pop()}`]);
+          if (deleteError) {
+            throw deleteError;
+          }
+        }
+      }
+
+      await supabase.from('comments').delete().eq('product_id', productId);
+      await supabase.from('product_likes').delete().eq('product_id', productId);
+      await supabase.from('products').delete().eq('id', productId);
+
+      alert('글이 성공적으로 삭제되었습니다.');
+      router.push('/');
+    } catch (error) {
+      console.error('글 삭제 오류:', error);
+      alert('글 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -156,11 +185,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
                   </div>
                 </div>
                 {loggedInUserId === products[0].user_id && (
-                  <Link href={`/edit/${products[0].id}`}>
-                    <button className="mt-6 bg-main text-white font-medium w-40 py-2.5 px-4 rounded-md hover:bg-hover">
-                      글 수정하기
+                  <div className="flex space-x-4 mt-6">
+                    <Link href={`/edit/${products[0].id}`}>
+                      <button className="bg-main text-white font-medium w-40 py-2.5 px-4 rounded-md hover:bg-hover">
+                        글 수정하기
+                      </button>
+                    </Link>
+                    <button
+                      className="bg-red-600 text-white font-medium w-40 py-2.5 px-4 rounded-md hover:bg-red-700"
+                      onClick={() => handleDelete(products[0].id)}
+                    >
+                      글 삭제하기
                     </button>
-                  </Link>
+                  </div>
                 )}
               </div>
             </div>
