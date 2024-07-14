@@ -9,7 +9,7 @@ function MypageLayout({ children }: PropsWithChildren) {
 
   return (
     <div className="flex flex-row max-w-[1200px] min-h-fit mx-auto my-10">
-      <nav className="border w-[200px] max-w-[200px] h-[400px] py-10 rounded-md">
+      <nav className="border w-[200px] min-w-[200px] h-[400px] py-10 rounded-md">
         <ul className="flex flex-col text-sm cursor-pointer text-gray-600">
           <Link href={'./profile'}>
             <li

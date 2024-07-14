@@ -1,7 +1,11 @@
 import PostCard from '@/components/common/PostCard';
 import { pageProductListType } from '@/types/list/productList.type';
 
-function ProductList({ pageList }: pageProductListType[]) {
+type ProductListProps = {
+  pageList: pageProductListType[] | undefined;
+};
+
+function ProductList({ pageList }: ProductListProps) {
   return (
     <div
       className={
@@ -10,7 +14,7 @@ function ProductList({ pageList }: pageProductListType[]) {
     >
       {Array.isArray(pageList) &&
         pageList.map((page) => {
-          return page.productList.map((product) => {
+          return page.productList?.map((product) => {
             return <PostCard key={product.id} post={product}></PostCard>;
           });
         })}
