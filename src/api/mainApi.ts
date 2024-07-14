@@ -6,13 +6,33 @@ export type QueryKeyProps = {
   requestLimit: number;
 };
 
-export const getAllPostList = async ({ queryKey }) => {
+type GetPostListProps = {
+  queryKey: [
+    string,
+    QueryKeyProps
+  ];
+};
+
+export const getAllPostList = async ( {queryKey} : GetPostListProps) => {
   const [_, { keyword, requestAddress, requestLimit }] = queryKey;
-  const queryParams = new URLSearchParams({
+
+  const params: {
+    keyword: string;
+    requestAddress: string;
+    requestLimit: number;
+    requestOffset: number;
+  } = {
     keyword,
-    requestLimit,
-    requestAddress,
+    requestAddress: requestAddress,
+    requestLimit: requestLimit,
     requestOffset: requestLimit * 0
+  };
+
+  const queryParams = new URLSearchParams({
+    keyword: params.keyword,
+    requestLimit: params.requestLimit.toString(),
+    requestAddress: params.requestAddress,
+    requestOffset: params.requestOffset.toString()
   });
 
   const response = await fetch(`/api/list/around?${queryParams.toString()}`);

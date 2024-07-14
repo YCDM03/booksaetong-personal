@@ -8,7 +8,7 @@ type PostCardProps = {
 
 function PostCard({ post }: PostCardProps) {
   const { product_images, title, address, price } = post;
-  const img_url = !product_images[0].image_url ? '' : product_images[0].image_url;
+  const img_url = !product_images[0].image_url && product_images[0].image_url.length < 0 ? '' : product_images[0].image_url;
 
   const formatPrice = (price: number): string => {
     const formated = new Intl.NumberFormat('en-US').format(price);

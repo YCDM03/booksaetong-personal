@@ -52,6 +52,7 @@ function HomePage() {
       <PostList title="전체도서목록">
         <>
           <Swiper
+            className="w-full"
             modules={[Navigation]}
             slidesPerView={4}
             spaceBetween={50}
