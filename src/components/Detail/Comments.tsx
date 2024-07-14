@@ -199,8 +199,8 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
 
       <div>
         {comments.map((comment) => (
-          <div>
-            <div key={comment.id} className="bg-white rounded-md p-4 mb-2 flex hover:bg-gray-50 transition-colors">
+          <div key={comment.id}>
+            <div  className="bg-white rounded-md p-4 mb-2 flex hover:bg-gray-50 transition-colors">
               <div className="w-12 h-12 mr-4 relative">
                 <Image
                   src={getUserProfileUrl(comment.user_id)}
