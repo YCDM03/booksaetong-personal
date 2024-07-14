@@ -62,7 +62,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     setAddress(position.address);
   };
 
-  // 폼 제출 처리
   const handleSubmit = async () => {
     if (!title) return setNotification({ message: '제목이 없습니다.', type: 'error' });
     if (!category) return setNotification({ message: '카테고리를 선택하세요.', type: 'error' });
@@ -122,7 +121,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
 
           console.log('이미지 데이터를 저장했습니다.');
 
-          // 필드 초기화
           setTitle('');
           setCategory('');
           setPrice('');
@@ -144,7 +142,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  // 이미지 업로드 함수
   const imageUpload = async (selectedFile: File) => {
     const filePath = `products/${uuidv4()}_${Date.now()}`;
 
@@ -165,7 +162,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
   };
 
   useEffect(() => {
-    // 기존 상품 데이터 불러오기
     const fetchProductData = async () => {
       const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
 
@@ -185,7 +181,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
         setAddress(data.address);
       }
 
-      // 기존 이미지 데이터 불러오기
       const { data: imageData, error: imageError } = await supabase
         .from('product_images')
         .select('image_url')
@@ -208,22 +203,14 @@ const EditPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex flex-col h-auto p-2 md:p-28">
-      {/* 전체 컨테이너 */}
-
       <div className="flex-grow relative border-2 border-bg-main rounded-lg flex flex-col p-4 md:p-10">
-        {/* 판매 등록 폼 컨테이너 */}
-
         <div className="mb-6">
-          {/* 제목 */}
           <p className="text-xl font-bold text-gray-800">내 글 수정하기</p>
         </div>
 
         <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
-          {/* 왼쪽 폼 필드 컨테이너 */}
-
           <div className="flex flex-col w-full md:w-1/2 space-y-4">
             <div className="flex flex-col space-y-1">
-              {/* 제목 입력 필드 */}
               <label htmlFor="title" className="text-sm text-gray-700">
                 제목
               </label>
@@ -237,7 +224,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
             </div>
 
             <div className="flex flex-col space-y-1">
-              {/* 카테고리 선택 필드 */}
               <label htmlFor="category" className="text-sm text-gray-700">
                 카테고리
               </label>
@@ -282,7 +268,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
             </div>
 
             <div className="flex flex-col space-y-1">
-              {/* 내용 입력 필드 */}
               <label htmlFor="contents" className="text-sm text-gray-700">
                 내용
               </label>
@@ -296,10 +281,8 @@ const EditPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
 
-          {/* 오른쪽 이미지 업로드 및 지도 컨테이너 */}
           <div className="flex flex-col w-full md:w-1/2 space-y-4">
             <div className="flex flex-col space-y-1">
-              {/* 이미지 업로드 필드 */}
               <label htmlFor="image" className="text-sm text-gray-600">
                 사진 등록
               </label>
@@ -324,7 +307,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
               </div>
 
               <div className="mt-2 relative w-full">
-                {/* 이미지 미리보기 및 삭제 */}
                 {images.length > 4 && currentIndex > 0 && (
                   <button
                     onClick={handlePrevious}
@@ -362,7 +344,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
                   </button>
                 )}
                 <div className="mt-4">
-                  {/* 거래 희망 위치 */}
                   <p className="text-gray-600">거래 희망 위치</p>
                   <KakaoMap onMarkerAddressChange={handleMarkerPositionChange} initialPosition={markerPosition} />
                 </div>
@@ -372,7 +353,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
         </div>
 
         <div className="mt-6 flex justify-end">
-          {/* 작성 완료 버튼 */}
           <button
             onClick={handleSubmit}
             className="px-4 py-2 bg-main text-white rounded-md shadow hover:bg-hover focus:outline-none"
