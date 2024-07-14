@@ -126,7 +126,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
       onMarkerAddressChange({
         lat: position.getLat(),
         lng: position.getLng(),
-        address: address // 콜백으로 전달받은 주소 사용
+        address: address
       });
     });
   };
@@ -134,7 +134,6 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
   return (
     <>
       <Script src={KAKAO_SDK_URL} strategy="beforeInteractive" />
-
       <Map center={center} style={{ width: '100%', height: '0', paddingBottom: '39.53%' }} level={3} onCreate={setMap}>
         {map && (
           <MapMarker position={markerPosition} draggable={true} onDragEnd={(target) => handleMarkerDragEnd(target)} />
