@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import CategoryFilter from '@/components/list/CategoryFilter';
 import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
 import ProductList from '@/components/list/ProductList';
-import useSearchStore, { SearchStoreType } from '@/zustand/searchStore';
+import useSearchStore, { defaultCategoryList, SearchStoreType } from '@/zustand/searchStore';
 import { getAllProductList } from '@/api/listApi';
 import ProductListHeader from '@/components/list/ProductListHeader';
 import ProductListEmpty from '@/components/list/ProductListEmpty';
@@ -20,7 +20,7 @@ function ListOfAllPage() {
   } = useSearchStore<SearchStoreType>((state) => state);
 
   const defaultOptions = useMemo(() => {
-    return ['경제경영', '만화', '사회과학', '소설/시/희곡', '어린이', '에세이', '유아', '인문학', '기타'];
+    return defaultCategoryList;
   }, []);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery<
@@ -86,8 +86,6 @@ function ListOfAllPage() {
                 <ProductListEmpty />
               </div>
             )}
-
-            {isFetchingNextPage && <LoadingCenter />}
           </ProductListHeader>
         </div>
       </div>
