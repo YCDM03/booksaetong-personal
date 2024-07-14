@@ -20,7 +20,7 @@ const SwiperSlider: React.FC<SliderProps> = ({ images }) => {
     >
       {images.map((image, index) => (
         <SwiperSlide key={index} className="relative">
-          <Image src={image} alt={`slide-${index}`} fill className="w-full h-full object-cover" />
+          <Image src={image} alt={`slide-${index}`} fill className="w-full h-full object-contain" />
         </SwiperSlide>
       ))}
     </Swiper>
