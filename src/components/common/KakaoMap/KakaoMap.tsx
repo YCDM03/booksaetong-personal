@@ -41,6 +41,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
 
           const sw = bounds.getSouthWest();
           const ne = bounds.getNorthEast();
+
           const newCenter = {
             lat: (sw.getLat() + ne.getLat()) / 2,
             lng: (sw.getLng() + ne.getLng()) / 2
@@ -112,6 +113,11 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
     const position = target.getPosition();
 
     setMarkerPosition({
+      lat: position.getLat(),
+      lng: position.getLng()
+    });
+
+    setCenter({
       lat: position.getLat(),
       lng: position.getLng()
     });
