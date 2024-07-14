@@ -10,7 +10,7 @@ export const GET = async (request: Request) => {
     const requestOffset = parseInt(searchParams.get('requestOffset') as string, 10) as number;
     const requestAddress = searchParams.get('requestAddress') as string;
 
-    type GetFilteredProductListArgs = Database['public']['Functions']['FilteredProductListOfAround']['args'];
+    type GetFilteredProductListArgs = Database['public']['Functions']['FilteredProductListOfAround']['Args'];
 
     const args: GetFilteredProductListArgs = {
       keyword,
