@@ -8,6 +8,8 @@ import Image from 'next/image';
 import Loading from '../common/Loading/LoadingCenter';
 import { Product } from '@/api/detail/allProducts';
 import { useRouter } from 'next/navigation';
+import DetailModal from './DetailModal';
+import { Notification } from '../common/Alert';
 
 interface ProductCardProps {
   products: Product[];
@@ -19,6 +21,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
   const [userEmail, setUserEmail] = useState('');
   const [userProfileUrl, setUserProfileUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productIdToDelete, setProductIdToDelete] = useState<string | null>(null);
+  const [notificationMessage, setNotificationMessage] = useState('');
   const router = useRouter();
 
   const { id: loggedInUserId } = useUserStore((state) => ({
@@ -108,33 +113,39 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
     return `${formatted}원`;
   };
 
-  const handleDelete = async (productId: string) => {
-    if (!confirm('정말로 이 글을 삭제하시겠습니까?')) {
-      return;
-    }
-
-    try {
-      if (productImages[productId]) {
-        for (const imageUrl of productImages[productId]) {
-          const { error: deleteError } = await supabase.storage
-            .from('avatars')
-            .remove([`products/${imageUrl.split('/').pop()}`]);
-          if (deleteError) {
-            throw deleteError;
+  const handleDelete = async () => {
+    if (productIdToDelete) {
+      try {
+        if (productImages[productIdToDelete]) {
+          for (const imageUrl of productImages[productIdToDelete]) {
+            const { error: deleteError } = await supabase.storage
+              .from('avatars')
+              .remove([`products/${imageUrl.split('/').pop()}`]);
+            if (deleteError) {
+              throw deleteError;
+            }
           }
         }
+
+        await supabase.from('comments').delete().eq('product_id', productIdToDelete);
+        await supabase.from('product_likes').delete().eq('product_id', productIdToDelete);
+        await supabase.from('products').delete().eq('id', productIdToDelete);
+
+        setNotificationMessage('글이 성공적으로 삭제되었습니다.');
+        router.push('/');
+      } catch (error) {
+        console.error('글 삭제 오류:', error);
+        setNotificationMessage('삭제 중 오류가 발생했습니다.');
+      } finally {
+        setProductIdToDelete(null);
+        setIsModalOpen(false);
       }
-
-      await supabase.from('comments').delete().eq('product_id', productId);
-      await supabase.from('product_likes').delete().eq('product_id', productId);
-      await supabase.from('products').delete().eq('id', productId);
-
-      alert('글이 성공적으로 삭제되었습니다.');
-      router.push('/');
-    } catch (error) {
-      console.error('글 삭제 오류:', error);
-      alert('글 삭제 중 오류가 발생했습니다.');
     }
+  };
+
+  const openDeleteModal = (productId: string) => {
+    setProductIdToDelete(productId);
+    setIsModalOpen(true);
   };
 
   if (isLoading) {
@@ -143,6 +154,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
 
   return (
     <>
+      {notificationMessage && (
+        <Notification message={notificationMessage} onClose={() => setNotificationMessage('정말로?')} />
+      )}
       {products.length > 0 && (
         <div className="container flex justify-center my-10">
           <div className="min-w-[1200px] h-[480px] border-transparent rounded-md flex justify-center items-center place-content-evenly shadow-detail">
@@ -155,6 +169,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
             </div>
             <div className="rounded-md w-[400px] h-[400px] flex flex-col justify-between p-4 ml-[40px]">
               <div>
+                <p className="text-lg font-medium text-[16px] mb-1">[ {products[0].category} ]</p>
                 <div className="flex">
                   <p className="font-bold text-3xl mr-5">{products[0].title}</p>
                   <div className="flex items-center">
@@ -167,7 +182,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
                   </div>
                 </div>
                 <p className="text-[#6A7280] mt-4">{products[0].address}</p>
-                <p className="my-4 text-lg font-medium">{formatPrice(products[0].price)}</p>
+                <p className="my-5 text-lg font-bold">{formatPrice(products[0].price)}</p>
               </div>
               <div>
                 <div className="flex items-center space-x-2">
@@ -192,7 +207,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
                     </Link>
                     <button
                       className="bg-red-600 text-white font-medium w-40 py-2.5 px-4 rounded-md hover:bg-red-700"
-                      onClick={() => handleDelete(products[0].id)}
+                      onClick={() => openDeleteModal(products[0].id)}
                     >
                       글 삭제하기
                     </button>
@@ -203,6 +218,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
           </div>
         </div>
       )}
+      <DetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleDelete} />
     </>
   );
 };
