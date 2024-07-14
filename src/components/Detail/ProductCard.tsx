@@ -33,8 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
             .from('product_likes')
             .select('id')
             .eq('user_id', loggedInUserId)
-            .eq('product_id', products[0].id)
-            .single();
+            .eq('product_id', products[0].id);
 
           if (error) {
             if (error.code === 'PGRST116') {
@@ -42,7 +41,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
             } else {
               throw error;
             }
-          } else if (data) {
+          } else if (data?.length > 0) {
             setLiked(true);
           }
         } catch (error) {
