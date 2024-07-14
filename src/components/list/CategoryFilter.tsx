@@ -1,6 +1,8 @@
+'use client';
+
 import { Checkbox, CheckboxProps } from 'antd';
-import React from 'react';
-import useSearchStore, { SearchStoreType } from '@/zustand/searchStore';
+import React, { useEffect } from 'react';
+import useSearchStore, { defaultCategoryList, SearchStoreType } from '@/zustand/searchStore';
 
 type CategoryFilterType = {
   checkBoxOptions: string[];
@@ -24,6 +26,10 @@ function CategoryFilter({ checkBoxOptions, showFilter, setShowFilter }: Category
   const onCheckAllChange: CheckboxProps['onChange'] = (e) => {
     setCategoryList(e.target.checked ? checkBoxOptions : []);
   };
+
+  useEffect(() => {
+    return setCategoryList(defaultCategoryList);
+  }, []);
 
   return (
     <div className="relative w-[430px] sm:w-[200px] px-[24px] py-[24px] border border-gray-300 rounded-lg">
