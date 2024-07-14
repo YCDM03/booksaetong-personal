@@ -79,7 +79,7 @@ function ListOfAllPage() {
           <ProductListHeader keyword={keyword} title={'도서 전체 목록'} address={null}>
             {isPending ? (
               <LoadingCenter />
-            ) : data?.pages[0].productList.length !== 0 ? (
+            ) : data?.pages[0].productList?.length !== 0 ? (
               <ProductList pageList={data?.pages} />
             ) : (
               <div className={'w-full mx-auto h-full'}>
