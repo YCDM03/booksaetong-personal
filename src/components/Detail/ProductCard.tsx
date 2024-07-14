@@ -3,9 +3,11 @@ import SwiperSlider from '../common/Swiper/Slider';
 import Link from 'next/link';
 import { HeartIcon } from '@heroicons/react/outline';
 import { supabase } from '@/contexts/supabase.context';
-import { Product } from '@/app/(provider)/(root)/(product)/detail/[id]/page';
+
 import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
+import Loading from '../common/Loading/LoadingCenter';
+import { Product } from '@/api/detail/allProducts';
 
 interface ProductCardProps {
   products: Product[];
@@ -16,6 +18,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
   const [liked, setLiked] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [userProfileUrl, setUserProfileUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const { id: loggedInUserId } = useUserStore((state) => ({
     id: state.id
@@ -33,7 +36,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
             .single();
 
           if (error) {
-            throw error;
+            // 데이터가 없거나 다른 오류가 발생했을 때 무시하고, liked 상태를 false로 설정
+            if (error.code === 'PGRST116') {
+              setLiked(false);
+            } else {
+              throw error; // 다른 오류는 그대로 처리
+            }
           } else if (data) {
             setLiked(true);
           }
@@ -43,10 +51,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
       }
     };
 
-    fetchLikedStatus();
-  }, [loggedInUserId, products]);
-
-  useEffect(() => {
     const fetchUserData = async () => {
       if (products.length > 0) {
         try {
@@ -68,8 +72,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
       }
     };
 
-    fetchUserData();
-  }, [products]);
+    const fetchData = async () => {
+      setIsLoading(true);
+      await Promise.all([fetchLikedStatus(), fetchUserData()]);
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, [loggedInUserId, products]);
 
   const toggleLike = async (productId: string) => {
     if (!loggedInUserId) {
@@ -98,6 +108,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
     const formatted = new Intl.NumberFormat('en-US').format(price);
     return `${formatted}원`;
   };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <>
