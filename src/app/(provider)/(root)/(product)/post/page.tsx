@@ -8,6 +8,7 @@ import { supabase } from '@/contexts/supabase.context';
 import { uuid } from 'uuidv4';
 import { useUserStore } from '@/zustand/userStore';
 import { useRouter } from 'next/navigation';
+import { Notification } from '@/components/common/Alert';
 
 const PostPage: NextPage = () => {
   const router = useRouter();
@@ -20,6 +21,7 @@ const PostPage: NextPage = () => {
   const [markerPosition, setMarkerPosition] = useState({ latitude: 0, longitude: 0 });
   const [address, setAddress] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [notification, setNotification] = useState({ message: '', type: '' });
   const { id } = useUserStore((state) => ({ id: state.id }));
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,13 +73,12 @@ const PostPage: NextPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!title) return alert('제목이 없습니다.');
-    if (!category) return alert('카테고리를 선택하세요.');
-    if (!price) return alert('금액이 없습니다.');
-    if (!contents) return alert('내용이 없습니다.');
-    if (images.length === 0) return alert('사진을 등록하세요.');
-    if (!address) return alert('주소가 없습니다.');
-
+    if (!title) return setNotification({ message: '제목이 없습니다.', type: 'error' });
+    if (!category) return setNotification({ message: '카테고리를 선택하세요.', type: 'error' });
+    if (!price) return setNotification({ message: '금액이 없습니다.', type: 'error' });
+    if (!contents) return setNotification({ message: '내용이 없습니다.', type: 'error' });
+    if (images.length === 0) return setNotification({ message: '사진을 등록하세요.', type: 'error' });
+    if (!address) return setNotification({ message: '주소가 없습니다.', type: 'error' });
     if (confirm('작성을 완료하시겠습니까?')) {
       try {
         const { data: productData, error: productError } = await supabase
@@ -139,6 +140,10 @@ const PostPage: NextPage = () => {
     if (error) {
       console.error('상품 삭제 오류:', error.message);
     }
+  };
+
+  const closeNotification = () => {
+    setNotification({ message: '', type: '' });
   };
 
   return (
@@ -300,6 +305,7 @@ const PostPage: NextPage = () => {
           </button>
         </div>
       </div>
+      {notification.message && <Notification message={notification.message} onClose={closeNotification} />}
     </div>
   );
 };
