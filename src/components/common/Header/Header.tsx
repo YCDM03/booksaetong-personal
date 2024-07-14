@@ -1,14 +1,14 @@
 'use client';
 
 import AuthAlert from '@/components/Auth/AuthAlert';
-import useSearchStore, { searchStoreType } from '@/zustand/searchStore';
+import { useHeaderAlertStore } from '@/zustand/alertStore';
+import useSearchStore, { SearchStoreType } from '@/zustand/searchStore';
 import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
-import { useHeaderAlertStore } from '@/zustand/alertStore';
 
 function Header() {
   const { message, forLogin, success, setSuccessAlert, clearAlert } = useHeaderAlertStore((state) => ({
@@ -26,7 +26,7 @@ function Header() {
   }));
 
   const [searchKeyword, setSearchKeyword] = useState<string>('');
-  const { setKeyword } = useSearchStore<searchStoreType>((state) => state);
+  const { setKeyword } = useSearchStore<SearchStoreType>((state) => state);
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -52,7 +52,7 @@ function Header() {
   };
 
   return (
-    <header className="flex w-screen h-[160px] min-w-[350px] lg:h-[70px] sm:h-[100px] shadow-lg shadow-gray-100 justify-center">
+    <header className="flex w-full h-[160px] min-w-[350px] lg:h-[70px] sm:h-[100px] shadow-lg shadow-gray-100 justify-center">
       <AuthAlert message={message} onClose={clearAlert} forLogin={forLogin} success={success} />
       <div className="flex  items-center   w-screen max-w-[1200px] lg:flex-row lg:justify-between flex-col justify-center sm:gap-4">
         <div className="flex items-center gap-0 flex-col lg:flex-row sm:flex-row sm:gap-8 justify-center ">

@@ -22,7 +22,7 @@ function LikePage() {
   return (
     <Page title="관심목록">
       {likes.length > 0 ? (
-        <ul className="grid grid-cols-4 gap-5 w-full h-full mt-10">
+        <ul className="grid sm:grid-cols-custom-1 md:grid-cols-custom-2 lg:grid-cols-custom-3 xl:grid-cols-custom-4 gap-3 mt-10">
           {likes?.map((like) => {
             return <PostCard key={like.id} post={like} />;
           })}
