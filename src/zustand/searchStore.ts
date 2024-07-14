@@ -12,10 +12,22 @@ export type SearchStoreType = {
   setKeyword: (keyword: string) => void;
 };
 
+export const defaultCategoryList = [
+  '경제경영',
+  '만화',
+  '사회과학',
+  '소설/시/희곡',
+  '어린이',
+  '에세이',
+  '유아',
+  '인문학',
+  '기타'
+];
+
 const useSearchStore = create<SearchStoreType>()(
   immer((set) => ({
     search: {
-      categoryList: [],
+      categoryList: defaultCategoryList,
       keyword: ''
     },
     setCategoryList: (categoryList: string[]) =>
