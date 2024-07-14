@@ -3,6 +3,8 @@ import { Map, MapMarker } from 'react-kakao-maps-sdk';
 import { useUserStore } from '@/zustand/userStore';
 import Script from 'next/script';
 
+const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}`;
+
 type MarkerInfo = {
   lat: number;
   lng: number;
@@ -13,8 +15,6 @@ type KakaoMapProps = {
   onMarkerAddressChange: (markerInfo: MarkerInfo) => void;
   initialPosition?: { latitude: number; longitude: number };
 };
-
-const KAKAO_SDK_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}`;
 
 const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosition }) => {
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
@@ -38,7 +38,6 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
         if (status === kakao.maps.services.Status.OK) {
           const bounds = new kakao.maps.LatLngBounds();
           data.forEach((place) => bounds.extend(new kakao.maps.LatLng(Number(place.y), Number(place.x))));
-          map.setBounds(bounds);
 
           const sw = bounds.getSouthWest();
           const ne = bounds.getNorthEast();
@@ -49,12 +48,10 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
 
           if (initialPosition) {
             setCenter({ lat: initialPosition.latitude, lng: initialPosition.longitude });
-            setMarkerPosition({ lat: initialPosition.latitude, lng: initialPosition.longitude });
-            geocodeAndSetMarkerAddress(initialPosition.latitude, initialPosition.longitude);
+            geocodeAndSetMarkerAddress(initialPosition.latitude, initialPosition.longitude, setMarkerAddress);
           } else {
             setCenter(newCenter);
-            setMarkerPosition(newCenter);
-            geocodeAndSetMarkerAddress(newCenter.lat, newCenter.lng);
+            geocodeAndSetMarkerAddress(newCenter.lat, newCenter.lng, setMarkerAddress);
           }
           map.setLevel(3);
         }
@@ -66,6 +63,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
     return () => {
       document.head.removeChild(kakaoScript);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, address, initialPosition]);
 
   useEffect(() => {
@@ -83,7 +81,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
     };
   }, [map]);
 
-  const geocodeAndSetMarkerAddress = (lat: number, lng: number) => {
+  const geocodeAndSetMarkerAddress = (lat: number, lng: number, callback: (address: string) => void) => {
     const geocoder = new kakao.maps.services.Geocoder();
     geocoder.coord2Address(lng, lat, (result, status) => {
       if (status === kakao.maps.services.Status.OK) {
@@ -104,6 +102,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
             infoWindow.setPosition(markerPosition);
             infoWindow.open(map, new kakao.maps.Marker({ position: markerPosition }));
           }
+          callback(address);
         }
       }
     });
@@ -111,23 +110,25 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ onMarkerAddressChange, initialPosit
 
   const handleMarkerDragEnd = (target: kakao.maps.Marker) => {
     const position = target.getPosition();
+
     setMarkerPosition({
       lat: position.getLat(),
       lng: position.getLng()
     });
 
-    geocodeAndSetMarkerAddress(position.getLat(), position.getLng());
-
-    onMarkerAddressChange({
-      lat: position.getLat(),
-      lng: position.getLng(),
-      address: markerAddress
+    geocodeAndSetMarkerAddress(position.getLat(), position.getLng(), (address) => {
+      onMarkerAddressChange({
+        lat: position.getLat(),
+        lng: position.getLng(),
+        address: address // 콜백으로 전달받은 주소 사용
+      });
     });
   };
 
   return (
     <>
       <Script src={KAKAO_SDK_URL} strategy="beforeInteractive" />
+
       <Map center={center} style={{ width: '100%', height: '0', paddingBottom: '39.53%' }} level={3} onCreate={setMap}>
         {map && (
           <MapMarker position={markerPosition} draggable={true} onDragEnd={(target) => handleMarkerDragEnd(target)} />

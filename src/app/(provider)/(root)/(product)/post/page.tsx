@@ -127,14 +127,14 @@ const PostPage: NextPage = () => {
 
         router.push('/');
       } catch (error) {
-        console.error('데이터 저장 중 오류 발생:', error.message);
+        console.error('데이터 저장 중 오류 발생:', onmessage);
       }
     } else {
       console.log('작성이 취소되었습니다.');
     }
   };
 
-  const deleteProduct = async (productsId) => {
+  const deleteProduct = async (productsId: string | number) => {
     const { error } = await supabase.from('products').delete().eq('Id', productsId);
     if (error) {
       console.error('상품 삭제 오류:', error.message);

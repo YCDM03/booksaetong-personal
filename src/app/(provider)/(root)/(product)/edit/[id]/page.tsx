@@ -26,7 +26,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     id: state.id
   }));
 
-  // 이미지 업로드 함수
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
@@ -36,7 +35,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  // 이미지 삭제 함수
   const handleImageClick = (index: number) => {
     const newImages = [...images];
     newImages.splice(index, 1);
@@ -61,7 +59,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
 
   const handleMarkerPositionChange = (position: { lat: number; lng: number; address: string }) => {
     setMarkerPosition({ latitude: position.lat, longitude: position.lng });
-    setAddress(position.address); // 주소 정보 업데이트
+    setAddress(position.address);
   };
 
   // 폼 제출 처리
@@ -75,12 +73,10 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     if (title && category && price && contents && address && images.length > 0) {
       let imageUrls = images;
       if (selectedFiles.length > 0) {
-        // 새 이미지가 있을 경우 업로드
         imageUrls = await Promise.all(selectedFiles.map((file) => imageUpload(file)));
       }
       if (confirm('작성을 완료하시겠습니까?')) {
         try {
-          // 기존 상품 업데이트
           const { error: updateError } = await supabase
             .from('products')
             .update({
@@ -99,7 +95,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
           }
 
           setNotification({ message: '상품 데이터가 성공적으로 업데이트되었습니다.', type: 'success' });
-          // 이미지 데이터 업로드 및 업데이트
+
           const imageUrls = await Promise.all(selectedFiles.map((file) => imageUpload(file)));
           if (imageUrls.length !== selectedFiles.length) {
             throw new Error('이미지 업로드 중 문제가 발생했습니다.');
@@ -140,7 +136,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
           console.log('모든 데이터 저장을 완료했습니다.');
           router.push('/');
         } catch (error) {
-          console.error('데이터 저장 중 오류 발생:', onmessage);
+          console.error('데이터 저장 중 오류 발생:', error);
         }
       } else {
         console.log('작성이 취소되었습니다.');
@@ -181,7 +177,6 @@ const EditPage = ({ params }: { params: { id: string } }) => {
       if (error) {
         console.error('상품 데이터 불러오기 오류:', error);
       } else {
-        debugger;
         setTitle(data.title);
         setCategory(data.category);
         setPrice(data.price.toString());
@@ -204,6 +199,7 @@ const EditPage = ({ params }: { params: { id: string } }) => {
     };
 
     fetchProductData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId, id]);
 
   const closeNotification = () => {
