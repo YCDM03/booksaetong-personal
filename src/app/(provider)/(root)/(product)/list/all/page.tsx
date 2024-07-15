@@ -83,7 +83,7 @@ function ListOfAllPage() {
               <ProductList pageList={data?.pages} />
             ) : (
               <div className={'w-full mx-auto h-full'}>
-                <ProductListEmpty />
+                <ProductListEmpty message={'도서목록이'} />
               </div>
             )}
           </ProductListHeader>

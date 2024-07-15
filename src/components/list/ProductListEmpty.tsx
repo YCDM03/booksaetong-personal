@@ -1,10 +1,10 @@
 import EmptyState from '@/components/EmptyState';
 import React from 'react';
 
-function ProductListEmpty() {
+function ProductListEmpty({ message }: { message: string }) {
   return (
     <div>
-      <EmptyState empty={'도서목록이'} isButtonExist={false}></EmptyState>
+      <EmptyState empty={message} isButtonExist={false}></EmptyState>
     </div>
   );
 }
