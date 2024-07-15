@@ -22,6 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
   const [userProfileUrl, setUserProfileUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoginAlertModalOpen, setLoginAlertModalOpen] = useState(false);
   const [productIdToDelete, setProductIdToDelete] = useState<string | null>(null);
   const [notificationMessage, setNotificationMessage] = useState('');
   const router = useRouter();
@@ -87,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
 
   const toggleLike = async (productId: string) => {
     if (!loggedInUserId) {
-      alert('로그인이 필요합니다.');
+      setLoginAlertModalOpen(true);
       return;
     }
 
@@ -219,6 +220,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ products, productImages }) =>
         </div>
       )}
       <DetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleDelete} />
+
+      {/* 좋아요 경고 모달 */}
+      <DetailModal
+        isOpen={isLoginAlertModalOpen}
+        onClose={() => setLoginAlertModalOpen(false)}
+        onConfirm={() => {
+          setLoginAlertModalOpen(false);
+          router.push('/login');
+        }}
+        title="로그인 필요"
+        message="좋아요를 하려면 로그인이 필요합니다."
+        confirmText="로그인"
+        hideCancelButton
+      />
     </>
   );
 };
