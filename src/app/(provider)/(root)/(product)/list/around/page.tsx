@@ -10,6 +10,7 @@ import ProductListHeader from '@/components/list/ProductListHeader';
 import ProductListEmpty from '@/components/list/ProductListEmpty';
 import { LoadingCenter } from '@/components/common/Loading';
 import { pageProductListType } from '@/types/list/productList.type';
+import { BeatLoader } from 'react-spinners';
 
 function ListOfAroundPage() {
   const { userAddress } = useUserStore((state) => ({
@@ -76,6 +77,12 @@ function ListOfAroundPage() {
             )
           ) : (
             <ProductListEmpty message={'현재 회원 정보가'} />
+          )}
+
+          {isFetchingNextPage && (
+            <div className={'flex flex-col items-center justify-center mt-20'}>
+              <BeatLoader />
+            </div>
           )}
         </ProductListHeader>
       </div>
