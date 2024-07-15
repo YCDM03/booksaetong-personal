@@ -4,6 +4,7 @@ import { useUserStore } from '@/zustand/userStore';
 import Image from 'next/image';
 import EditCommentModal from './EditCommentModal';
 import DetailModal from './DetailModal';
+import { useRouter } from 'next/navigation';
 
 interface Comment {
   id: string;
@@ -32,8 +33,10 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
   const [newComment, setNewComment] = useState<string>('');
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isLoginAlertModalOpen, setLoginAlertModalOpen] = useState(false);
   const [currentCommentId, setCurrentCommentId] = useState<string | null>(null);
   const [currentCommentContent, setCurrentCommentContent] = useState('');
+  const router = useRouter();
 
   const { id: loggedInUserId } = useUserStore((state) => ({
     id: state.id
@@ -66,7 +69,7 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
     e.preventDefault();
 
     if (!loggedInUserId) {
-      alert('로그인이 필요합니다.');
+      setLoginAlertModalOpen(true);
       return;
     }
 
@@ -245,6 +248,20 @@ const Comments: React.FC<CommentsProps> = ({ productId, userData }) => {
 
       {/* 삭제 확인 모달 */}
       <DetailModal isOpen={isDeleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={handleDelete} />
+
+      {/* 로그인 경고 모달 */}
+      <DetailModal
+        isOpen={isLoginAlertModalOpen}
+        onClose={() => setLoginAlertModalOpen(false)}
+        onConfirm={() => {
+          setLoginAlertModalOpen(false);
+          router.push('/login');
+        }}
+        title="로그인 필요"
+        message="댓글을 작성하려면 로그인이 필요합니다."
+        confirmText="로그인"
+        hideCancelButton
+      />
     </div>
   );
 };

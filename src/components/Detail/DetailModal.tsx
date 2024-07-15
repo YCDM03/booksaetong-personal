@@ -8,6 +8,7 @@ interface ModalProps {
   message?: string;
   confirmText?: string;
   cancelText?: string;
+  hideCancelButton?: boolean;
 }
 
 const DetailModal: React.FC<ModalProps> = ({
@@ -17,7 +18,8 @@ const DetailModal: React.FC<ModalProps> = ({
   title = '확인',
   message = '정말로 삭제하시겠습니까?',
   confirmText = '확인',
-  cancelText = '취소'
+  cancelText = '취소',
+  hideCancelButton = false
 }) => {
   if (!isOpen) return null;
 
@@ -27,13 +29,15 @@ const DetailModal: React.FC<ModalProps> = ({
         <h2 className="text-lg text-gray-900 mb-4 text-center font-bold">{title}</h2>
         <p className="text-center mb-6">{message}</p>
         <div className="flex justify-center space-x-2 mt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="py-2 px-4 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
-          >
-            {cancelText}
-          </button>
+          {!hideCancelButton && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="py-2 px-4 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+            >
+              {cancelText}
+            </button>
+          )}
           <button
             type="button"
             onClick={onConfirm}
