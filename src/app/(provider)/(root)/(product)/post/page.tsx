@@ -9,9 +9,11 @@ import { uuid } from 'uuidv4';
 import { useUserStore } from '@/zustand/userStore';
 import { useRouter } from 'next/navigation';
 import { Notification } from '@/components/common/Alert';
+import Confirm from '@/components/common/Alert/confirm';
 
 const PostPage: NextPage = () => {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [title, setTitle] = useState('');
@@ -72,66 +74,67 @@ const PostPage: NextPage = () => {
     return data?.publicUrl;
   };
 
-  const handleSubmit = async () => {
+  const valid = async () => {
     if (!title) return setNotification({ message: '제목이 없습니다.', type: 'error' });
     if (!category) return setNotification({ message: '카테고리를 선택하세요.', type: 'error' });
     if (!price) return setNotification({ message: '금액이 없습니다.', type: 'error' });
     if (!contents) return setNotification({ message: '내용이 없습니다.', type: 'error' });
     if (images.length === 0) return setNotification({ message: '사진을 등록하세요.', type: 'error' });
     if (!address) return setNotification({ message: '주소가 없습니다.', type: 'error' });
-    if (confirm('작성을 완료하시겠습니까?')) {
-      try {
-        const { data: productData, error: productError } = await supabase
-          .from('products')
-          .insert([
-            {
-              user_id: id,
-              title,
-              category,
-              price: parseFloat(price),
-              contents,
-              latitude: markerPosition.latitude,
-              longitude: markerPosition.longitude,
-              address
-            }
-          ])
-          .select();
 
-        if (productError) throw productError;
+    setOpen(true);
+  };
 
-        const imageUrls = await Promise.all(selectedFiles.map((file) => imageUpload(file)));
-        if (imageUrls.length !== selectedFiles.length) {
-          deleteProduct(productData[0].id);
-          throw new Error('이미지 업로드 오류');
-        }
+  const handleSubmit = async () => {
+    try {
+      const { data: productData, error: productError } = await supabase
+        .from('products')
+        .insert([
+          {
+            user_id: id,
+            title,
+            category,
+            price: parseFloat(price),
+            contents,
+            latitude: markerPosition.latitude,
+            longitude: markerPosition.longitude,
+            address
+          }
+        ])
+        .select();
 
-        const imageInsertData = imageUrls.map((imageUrl) => ({
-          product_id: productData[0].id,
-          image_url: imageUrl
-        }));
+      if (productError) throw productError;
 
-        const { error: imageError } = await supabase.from('product_images').insert(imageInsertData);
-        if (imageError) {
-          deleteProduct(productData[0].id);
-          throw imageError;
-        }
-
-        setTitle('');
-        setCategory('');
-        setPrice('');
-        setContents('');
-        setAddress('');
-        setImages([]);
-        setSelectedFiles([]);
-        setCurrentIndex(0);
-        setMarkerPosition({ latitude: 0, longitude: 0 });
-
-        router.push('/');
-      } catch (error) {
-        console.error('데이터 저장 중 오류 발생:', onmessage);
+      const imageUrls = await Promise.all(selectedFiles.map((file) => imageUpload(file)));
+      if (imageUrls.length !== selectedFiles.length) {
+        deleteProduct(productData[0].id);
+        throw new Error('이미지 업로드 오류');
       }
-    } else {
-      console.log('작성이 취소되었습니다.');
+
+      const imageInsertData = imageUrls.map((imageUrl) => ({
+        product_id: productData[0].id,
+        image_url: imageUrl
+      }));
+
+      const { error: imageError } = await supabase.from('product_images').insert(imageInsertData);
+      if (imageError) {
+        deleteProduct(productData[0].id);
+        throw imageError;
+      }
+
+      setTitle('');
+      setCategory('');
+      setPrice('');
+      setContents('');
+      setAddress('');
+      setImages([]);
+      setSelectedFiles([]);
+      setCurrentIndex(0);
+      setMarkerPosition({ latitude: 0, longitude: 0 });
+
+      router.push('/');
+    } catch (error) {
+      console.error('데이터 저장 중 오류 발생:', onmessage);
     }
   };
 
@@ -298,7 +301,7 @@ const PostPage: NextPage = () => {
 
         <div className="mt-6 flex justify-end">
           <button
-            onClick={handleSubmit}
+            onClick={valid}
             className="px-4 py-2 bg-main text-white rounded-md shadow hover:bg-hover focus:outline-none"
           >
             작성 완료
@@ -306,6 +309,7 @@ const PostPage: NextPage = () => {
         </div>
       </div>
       {notification.message && <Notification message={notification.message} onClose={closeNotification} />}
+      <Confirm message={'작성을 완료하겠습니까?'} okHandlerFn={handleSubmit} open={open} setOpen={setOpen}></Confirm>
     </div>
   );
 };
