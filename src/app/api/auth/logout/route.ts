@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
 
 export const POST = async (request: Request) => {
   const supabase = createClient();
@@ -6,8 +7,10 @@ export const POST = async (request: Request) => {
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    console.log('error message:', error?.message);
+    return Response.json({ errorMsg: error?.message });
+  } else {
+    cookies().delete('sb-wwqtgagcybxbzyouattn-auth-token');
   }
 
-  return Response.json({ errorMsg: error?.message || null });
+  return Response.json({ message: 'logout done' });
 };
