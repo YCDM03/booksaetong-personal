@@ -11,11 +11,12 @@ import { ChangeEvent, FormEvent, MouseEventHandler, useState } from 'react';
 import HeaderButton from './HeaderButton';
 
 function Header() {
-  const { message, forLogin, success, setSuccessAlert, clearAlert } = useHeaderAlertStore((state) => ({
+  const { message, forLogin, success, setSuccessAlert, setErrorAlert, clearAlert } = useHeaderAlertStore((state) => ({
     message: state.message,
     forLogin: state.forLogin,
     success: state.success,
     setSuccessAlert: state.setSuccessAlert,
+    setErrorAlert: state.setErrorAlert,
     clearAlert: state.clearAlert
   }));
   const router = useRouter();
@@ -40,11 +41,16 @@ function Header() {
   };
 
   const handleLogout: MouseEventHandler<HTMLButtonElement> = async () => {
-    await fetch('/api/auth/logout', {
+    const response = await fetch('/api/auth/logout', {
       method: 'POST'
     });
-    clearUser();
-    setSuccessAlert('로그아웃 되었습니다.', false, true);
+    const { message, errorMsg }: { message: string | null; errorMsg: string | null } = await response.json();
+    if (errorMsg) {
+      return setErrorAlert(errorMsg);
+    } else if (message) {
+      clearUser();
+      setSuccessAlert(message, false, true);
+    }
 
     currentPathName.includes('mypage') || currentPathName.includes('edit') || currentPathName.includes('post')
       ? router.push('/login')
