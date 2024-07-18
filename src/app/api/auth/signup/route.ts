@@ -17,10 +17,10 @@ export const POST = async (request: Request) => {
   });
 
   if (error) {
-    console.log('error message:', error?.message);
+    return Response.json({ errorMsg: error?.message });
   }
 
   cookies().delete('sb-wwqtgagcybxbzyouattn-auth-token');
   cookies().delete('sb-wwqtgagcybxbzyouattn-auth-token-code-verifier');
-  return Response.json({ data, errorMsg: error?.message || null });
+  return Response.json({ data });
 };
