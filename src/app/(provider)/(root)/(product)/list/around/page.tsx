@@ -11,8 +11,10 @@ import ProductListEmpty from '@/components/list/ProductListEmpty';
 import { LoadingCenter } from '@/components/common/Loading';
 import { pageProductListType } from '@/types/list/productList.type';
 import { BeatLoader } from 'react-spinners';
+import { useRouter } from 'next/navigation';
 
 function ListOfAroundPage() {
+  const router = useRouter();
   const { userAddress } = useUserStore((state) => ({
     userAddress: state.address
   }));
@@ -54,6 +56,9 @@ function ListOfAroundPage() {
   }, [fetchNextPage, hasNextPage]);
 
   useEffect(() => {
+    if (!userAddress) {
+      router.push('/login');
+    }
     setAddress(userAddress);
   }, [userAddress]);
 

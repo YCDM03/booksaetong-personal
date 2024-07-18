@@ -12,5 +12,5 @@ export const POST = async (request: Request) => {
     cookies().delete('sb-wwqtgagcybxbzyouattn-auth-token');
   }
 
-  return Response.json({ message: 'logout done' });
+  return Response.json({ message: '로그아웃 되었습니다!' });
 };
